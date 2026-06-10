@@ -9,6 +9,9 @@ type Booking = {
   phone: string;
   booking_date: string;
   slot_time: string;
+  end_time: string;
+  service_name: string;
+  duration: number;
   status: string;
 };
 
@@ -47,7 +50,7 @@ export default function BookingTable({
             statusFilter === "all"
               ? true
               : booking.status ===
-                statusFilter;
+              statusFilter;
 
           return (
             matchesSearch &&
@@ -162,11 +165,19 @@ export default function BookingTable({
               </th>
 
               <th className="p-3 text-left">
+                Service
+              </th>
+
+              <th className="p-3 text-left">
                 Date
               </th>
 
               <th className="p-3 text-left">
                 Time
+              </th>
+
+              <th className="p-3 text-left">
+                Duration
               </th>
 
               <th className="p-3 text-left">
@@ -192,9 +203,7 @@ export default function BookingTable({
                 >
 
                   <td className="p-3">
-                    {
-                      booking.customer_name
-                    }
+                    {booking.customer_name}
                   </td>
 
                   <td className="p-3">
@@ -202,26 +211,38 @@ export default function BookingTable({
                   </td>
 
                   <td className="p-3">
-                    {
-                      booking.booking_date
-                    }
+                    {booking.service_name}
                   </td>
 
                   <td className="p-3">
-                    {booking.slot_time}
+                    {booking.booking_date}
+                  </td>
+
+                  <td className="p-3">
+
+                    <div>
+                      {booking.slot_time}
+                    </div>
+
+                    <div className="text-xs text-gray-500">
+                      to {booking.end_time}
+                    </div>
+
+                  </td>
+
+                  <td className="p-3">
+                    {booking.duration} min
                   </td>
 
                   <td className="p-3">
 
                     <span
                       className={
-                        booking.status ===
-                        "confirmed"
-                          ? "text-green-600"
-                          : booking.status ===
-                            "completed"
-                          ? "text-blue-600"
-                          : "text-red-600"
+                        booking.status === "confirmed"
+                          ? "text-green-600 font-medium"
+                          : booking.status === "completed"
+                            ? "text-blue-600 font-medium"
+                            : "text-red-600 font-medium"
                       }
                     >
                       {booking.status}
@@ -229,43 +250,50 @@ export default function BookingTable({
 
                   </td>
 
-                  <td className="p-3 flex gap-2">
+                  <td className="p-3">
 
-                    <button
-                      disabled={
-                        loadingId ===
-                        booking.id
-                      }
-                      onClick={() =>
-                        handleStatus(
-                          booking.id,
-                          "completed"
-                        )
-                      }
-                      className="bg-blue-600 text-white px-3 py-1 rounded"
-                    >
-                      Complete
-                    </button>
+                    {booking.status ===
+                      "confirmed" && (
 
-                    <button
-                      disabled={
-                        loadingId ===
-                        booking.id
-                      }
-                      onClick={() =>
-                        handleStatus(
-                          booking.id,
-                          "cancelled"
-                        )
-                      }
-                      className="bg-red-600 text-white px-3 py-1 rounded"
-                    >
-                      Cancel
-                    </button>
+                        <div className="flex gap-2">
+
+                          <button
+                            disabled={
+                              loadingId === booking.id
+                            }
+                            onClick={() =>
+                              handleStatus(
+                                booking.id,
+                                "completed"
+                              )
+                            }
+                            className="bg-blue-600 text-white px-3 py-1 rounded"
+                          >
+                            Complete
+                          </button>
+
+                          <button
+                            disabled={
+                              loadingId === booking.id
+                            }
+                            onClick={() =>
+                              handleStatus(
+                                booking.id,
+                                "cancelled"
+                              )
+                            }
+                            className="bg-red-600 text-white px-3 py-1 rounded"
+                          >
+                            Cancel
+                          </button>
+
+                        </div>
+
+                      )}
 
                   </td>
 
-                </tr>
+                </tr> 
 
               )
             )}

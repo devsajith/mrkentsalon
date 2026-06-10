@@ -18,12 +18,20 @@ export async function GET(
   const date =
     searchParams.get("date");
 
-  if (!date) {
+  const serviceId =
+    searchParams.get(
+      "serviceId"
+    );
+
+  if (
+    !date ||
+    !serviceId
+  ) {
 
     return NextResponse.json(
       {
         error:
-          "Date required",
+          "Date and serviceId required",
       },
       {
         status: 400,
@@ -34,11 +42,11 @@ export async function GET(
 
   const slots =
     await getAvailableSlots(
-      date
+      date,
+      serviceId
     );
 
   return NextResponse.json(
     slots
   );
-
 }

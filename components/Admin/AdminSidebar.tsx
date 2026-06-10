@@ -26,6 +26,11 @@ export default function AdminSidebar() {
         >
           Bookings
         </Link>
+        <Link
+          href="/admin/services"
+        >
+          Services
+        </Link>
 
         <Link
           href="/admin/settings"

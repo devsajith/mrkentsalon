@@ -1,95 +1,126 @@
 import { supabase } from "@/lib/supabase";
-import { getSettings } from "./settings.service";
 
-function generateSlots(
-  openingTime: string,
-  closingTime: string,
-  slotDuration: number
-) {
+import { getSettings }
+from "./settings.service";
 
-  const slots = [];
+import { getServices }
+from "./service.service";
 
-  const start =
-    new Date(
-      `1970-01-01T${openingTime}`
-    );
-
-  const end =
-    new Date(
-      `1970-01-01T${closingTime}`
-    );
-
-  while (start < end) {
-
-    slots.push(
-      start
-        .toTimeString()
-        .slice(0, 5)
-    );
-
-    start.setMinutes(
-      start.getMinutes() +
-      slotDuration
-    );
-
-  }
-
-  return slots;
-}
+import {
+  addMinutes,
+  generateTimeSlots,
+  overlaps,
+} from "@/utils/time";
 
 export async function getAvailableSlots(
-  date: string
+  date: string,
+  serviceId: string
 ) {
 
   const settings =
     await getSettings();
 
-  const slots =
-    generateSlots(
-      settings.opening_time,
-      settings.closing_time,
-      Number(
-        settings.slot_duration
-      )
+  const services =
+    await getServices();
+
+  const service =
+    services.find(
+      (s: any) =>
+        s.id === serviceId
     );
 
-  const { data, error } =
-    await supabase
-      .from("bookings")
-      .select("*")
-      .eq(
-        "booking_date",
-        date
-      );
-
-  if (error) {
-    throw error;
+  if (!service) {
+    throw new Error(
+      "Service not found"
+    );
   }
+
+  const duration =
+    service.duration;
 
   const capacity =
     Number(
       settings.slot_capacity
     );
 
-  return slots.map(
-    (slot) => {
+  const { data: bookings,
+    error } =
+    await supabase
+      .from("bookings")
+      .select("*")
+      .eq(
+        "booking_date",
+        date
+      )
+      .neq(
+        "status",
+        "cancelled"
+      );
 
-      const count =
-        data.filter(
-          (booking) =>
-            booking.slot_time
-              .slice(0, 5) === slot
-        ).length;
+  if (error) {
+    throw error;
+  }
 
-      return {
-        time: slot,
-        booked: count,
-        remaining:
-          capacity - count,
-        available:
-          count < capacity,
-      };
+  const candidateSlots =
+    generateTimeSlots(
+      settings.opening_time,
+      settings.closing_time,
+      30
+    );
 
-    }
-  );
+  const availableSlots =
+    candidateSlots.map(
+      (slot) => {
+
+        const endTime =
+          addMinutes(
+            slot,
+            duration
+          );
+
+        let occupancy = 0;
+
+        bookings.forEach(
+          (booking: any) => {
+
+            const overlapsSlot =
+              overlaps(
+                slot,
+                endTime,
+                booking.slot_time,
+                booking.end_time
+              );
+
+            if (
+              overlapsSlot
+            ) {
+              occupancy++;
+            }
+
+          }
+        );
+
+        return {
+
+          time: slot,
+
+          endTime,
+
+          booked:
+            occupancy,
+
+          remaining:
+            capacity -
+            occupancy,
+
+          available:
+            occupancy <
+            capacity,
+
+        };
+
+      }
+    );
+
+  return availableSlots;
 }

@@ -1,9 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { createBooking }from "@/services/publicbooking.service";
+import { useEffect, useState } from "react";
+
+type Service = {
+  id: string;
+  name: string;
+  duration: number;
+};
+
 type Slot = {
   time: string;
+  endTime: string;
   booked: number;
   remaining: number;
   available: boolean;
@@ -11,71 +18,195 @@ type Slot = {
 
 export default function BookingPage() {
 
-  const [date, setDate] =
+  const [services,
+    setServices] =
+    useState<Service[]>([]);
+
+  const [selectedService,
+    setSelectedService] =
     useState("");
 
-  const [slots, setSlots] =
+  const [selectedDate,
+    setSelectedDate] =
+    useState("");
+
+  const [slots,
+    setSlots] =
     useState<Slot[]>([]);
 
-  const [selectedSlot, setSelectedSlot] =
+  const [selectedSlot,
+    setSelectedSlot] =
     useState("");
 
-  const [customerName, setCustomerName] =
+  const [customerName,
+    setCustomerName] =
     useState("");
 
-  const [phone, setPhone] =
+  const [phone,
+    setPhone] =
     useState("");
 
-  const [message, setMessage] =
+  const [loading,
+    setLoading] =
+    useState(false);
+
+  const [message,
+    setMessage] =
     useState("");
+
+  useEffect(() => {
+
+    async function loadServices() {
+
+      const response =
+        await fetch(
+          "/api/service"
+        );
+
+      const data =
+        await response.json();
+
+      setServices(data);
+
+    }
+
+    loadServices();
+
+  }, []);
 
   async function loadSlots(
-    selectedDate: string
+    serviceId: string,
+    date: string
   ) {
 
-    setDate(selectedDate);
+    if (
+      !serviceId ||
+      !date
+    ) {
+      return;
+    }
 
     const response =
       await fetch(
-        `/api/availability?date=${selectedDate}`
+        `/api/availability?date=${date}&serviceId=${serviceId}`
       );
 
     const data =
       await response.json();
 
     setSlots(data);
+
   }
 
   async function handleBooking() {
 
     try {
 
-      await createBooking({
-        customer_name:
-          customerName,
-        phone,
-        booking_date: date,
-        slot_time:
-          selectedSlot,
-      });
+      setLoading(true);
+
+      const service =
+        services.find(
+          (s) =>
+            s.id ===
+            selectedService
+        );
+
+      if (!service) {
+        throw new Error(
+          "Please select service"
+        );
+      }
+
+      const slot =
+        slots.find(
+          (s) =>
+            s.time ===
+            selectedSlot
+        );
+
+      if (!slot) {
+        throw new Error(
+          "Please select slot"
+        );
+      }
+
+      const response =
+        await fetch(
+          "/api/booking",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              customer_name:
+                customerName,
+
+              phone,
+
+              booking_date:
+                selectedDate,
+
+              slot_time:
+                slot.time,
+
+              end_time:
+                slot.endTime,
+
+              duration:
+                service.duration,
+
+              service_id:
+                service.id,
+
+              service_name:
+                service.name,
+            }),
+          }
+        );
+
+      const result =
+        await response.json();
+        console.log("result:", result);
+
+      if (
+        !response.ok
+      ) {
+        throw new Error(
+          result.message
+        );
+      }
 
       setMessage(
-        "Booking created successfully"
+        "Booking Confirmed"
       );
+
+      window.location.href =
+        `/booksuccess?reference=${result.data[0].booking_reference}&customer=${customerName}&service=${service.name}&date=${selectedDate}&time=${slot.time}-${slot.endTime}`;
 
       setCustomerName("");
       setPhone("");
       setSelectedSlot("");
 
-      await loadSlots(date);
+      await loadSlots(
+        selectedService,
+        selectedDate
+      );
 
-    } catch (error) {
-
-      console.error(error);
+    } catch (
+      error: any
+    ) {
 
       setMessage(
-        "Failed to create booking"
+        error.message
       );
+
+    } finally {
+
+      setLoading(false);
 
     }
 
@@ -91,25 +222,93 @@ export default function BookingPage() {
 
       <div className="space-y-4">
 
+        <select
+          value={
+            selectedService
+          }
+          onChange={(
+            e
+          ) => {
+
+            setSelectedService(
+              e.target.value
+            );
+
+            loadSlots(
+              e.target.value,
+              selectedDate
+            );
+
+          }}
+          className="border p-2 rounded w-full"
+        >
+
+          <option value="">
+            Select Service
+          </option>
+
+          {services.map(
+            (
+              service
+            ) => (
+
+              <option
+                key={
+                  service.id
+                }
+                value={
+                  service.id
+                }
+              >
+                {
+                  service.name
+                }
+                {" "}
+                (
+                {
+                  service.duration
+                }
+                min)
+              </option>
+
+            )
+          )}
+
+        </select>
+
         <input
           type="date"
-          value={date}
-          onChange={(e) =>
-            loadSlots(
-              e.target.value
-            )
+          value={
+            selectedDate
           }
+          onChange={(
+            e
+          ) => {
+
+            setSelectedDate(
+              e.target.value
+            );
+
+            loadSlots(
+              selectedService,
+              e.target.value
+            );
+
+          }}
           className="border p-2 rounded w-full"
         />
 
-        {slots.length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
 
-          <div className="grid grid-cols-3 gap-3">
-
-            {slots.map((slot) => (
+          {slots.map(
+            (
+              slot
+            ) => (
 
               <button
-                key={slot.time}
+                key={
+                  slot.time
+                }
                 disabled={
                   !slot.available
                 }
@@ -118,33 +317,54 @@ export default function BookingPage() {
                     slot.time
                   )
                 }
-                className={`p-3 rounded border
+                className={`border p-2 rounded
+
                 ${
                   selectedSlot ===
                   slot.time
                     ? "bg-black text-white"
                     : ""
                 }
+
                 ${
                   !slot.available
-                    ? "opacity-50"
+                    ? "bg-red-100 opacity-50"
                     : ""
                 }`}
               >
-                {slot.time}
+
+                <div>
+                  {
+                    slot.time
+                  }
+                </div>
+
+                <div className="text-xs">
+
+                  {
+                    slot.available
+                      ? `${slot.remaining} Left`
+                      : "Fully Booked"
+                  }
+
+                </div>
+
               </button>
 
-            ))}
+            )
+          )}
 
-          </div>
-
-        )}
+        </div>
 
         <input
           type="text"
           placeholder="Customer Name"
-          value={customerName}
-          onChange={(e) =>
+          value={
+            customerName
+          }
+          onChange={(
+            e
+          ) =>
             setCustomerName(
               e.target.value
             )
@@ -156,7 +376,9 @@ export default function BookingPage() {
           type="text"
           placeholder="Phone Number"
           value={phone}
-          onChange={(e) =>
+          onChange={(
+            e
+          ) =>
             setPhone(
               e.target.value
             )
@@ -165,15 +387,22 @@ export default function BookingPage() {
         />
 
         <button
-          onClick={handleBooking}
-          className="bg-black text-white px-4 py-2 rounded"
+          onClick={
+            handleBooking
+          }
+          disabled={
+            loading
+          }
+          className="bg-black text-white p-3 rounded w-full"
         >
-          Book Appointment
+          {loading
+            ? "Booking..."
+            : "Book Appointment"}
         </button>
 
         {message && (
 
-          <div className="p-3 bg-green-100 rounded">
+          <div className="p-3 bg-gray-100 rounded">
 
             {message}
 
