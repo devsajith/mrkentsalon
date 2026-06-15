@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { unstable_noStore } from "next/cache";
 export async function getBookings() {
 
-    unstable_noStore();
+  unstable_noStore();
 
   const { data, error } =
     await supabase
@@ -56,7 +56,7 @@ export async function updateBookingStatus(
 
 export async function getDashboardStats() {
 
-    unstable_noStore();
+  unstable_noStore();
 
 
   const bookings =
@@ -64,8 +64,14 @@ export async function getDashboardStats() {
 
   const today =
     new Date()
-      .toISOString()
-      .split("T")[0];
+
+      .toLocaleDateString(
+        "en-CA",
+        {
+          timeZone:
+            "Asia/Kolkata",
+        }
+      );
 
   const todaysBookings =
     bookings.filter(
