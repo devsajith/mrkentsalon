@@ -51,72 +51,75 @@ export default function ServiceForm() {
   }
 
   return (
-
-    <div className="bg-white p-5 rounded-lg shadow mb-6">
-
-      <h2 className="text-xl font-bold mb-4">
+    <div className="bg-white p-6 rounded-2xl border border-border-light shadow-sm space-y-5">
+      <h2 className="text-lg font-bold text-text-primary border-b border-border-light/60 pb-3 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
         Add Service
       </h2>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
+        {/* Service Name */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-text-muted uppercase tracking-wider">Service Name</label>
+          <input
+            type="text"
+            placeholder="e.g. Classic Haircut"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full bg-surface/50 border border-border-light/60 rounded-xl py-2.5 px-4 text-sm font-medium text-text-primary placeholder:text-text-muted outline-none border-transparent focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all"
+          />
+        </div>
 
-        <input
-          placeholder="Service Name"
-          value={name}
-          onChange={(e) =>
-            setName(
-              e.target.value
-            )
-          }
-          className="w-full border p-2 rounded"
-        />
+        {/* Description */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-text-muted uppercase tracking-wider">Description</label>
+          <textarea
+            placeholder="Service details..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full bg-surface/50 border border-border-light/60 rounded-xl py-2.5 px-4 text-sm font-medium text-text-primary placeholder:text-text-muted outline-none border-transparent focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all min-h-[80px]"
+          />
+        </div>
 
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) =>
-            setDescription(
-              e.target.value
-            )
-          }
-          className="w-full border p-2 rounded"
-        />
+        {/* Duration */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-text-muted uppercase tracking-wider">Duration (Minutes)</label>
+          <input
+            type="number"
+            placeholder="e.g. 30"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            className="w-full bg-surface/50 border border-border-light/60 rounded-xl py-2.5 px-4 text-sm font-medium text-text-primary placeholder:text-text-muted outline-none border-transparent focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all"
+          />
+        </div>
 
-        <input
-          type="number"
-          placeholder="Duration"
-          value={duration}
-          onChange={(e) =>
-            setDuration(
-              e.target.value
-            )
-          }
-          className="w-full border p-2 rounded"
-        />
+        {/* Price */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-text-muted uppercase tracking-wider">Price (₹)</label>
+          <input
+            type="number"
+            placeholder="e.g. 500"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="w-full bg-surface/50 border border-border-light/60 rounded-xl py-2.5 px-4 text-sm font-medium text-text-primary placeholder:text-text-muted outline-none border-transparent focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all"
+          />
+        </div>
 
-        <input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) =>
-            setPrice(
-              e.target.value
-            )
-          }
-          className="w-full border p-2 rounded"
-        />
-
+        {/* Submit button */}
         <button
+          type="button"
           onClick={handleSubmit}
-          className="bg-black text-white px-4 py-2 rounded"
+          className="w-full bg-gradient-to-r from-accent to-accent-light py-3 rounded-xl text-sm font-bold text-white shadow-md hover:shadow-lg transition-all active:shadow-sm cursor-pointer flex items-center justify-center gap-2 border-none"
         >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
           Add Service
         </button>
-
       </div>
-
     </div>
-
   );
 
 }

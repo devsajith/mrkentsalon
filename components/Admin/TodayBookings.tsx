@@ -16,7 +16,7 @@ export default function TodayBookings() {
     <div className="bg-white rounded-lg shadow p-5">
 
       <h2 className="text-xl font-semibold mb-4">
-        Today's Bookings
+        Today&apos;s Bookings
       </h2>
 
       {bookings.map((booking) => (

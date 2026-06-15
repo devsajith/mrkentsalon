@@ -12,7 +12,7 @@ export async function GET() {
 
   return NextResponse.json(
     services.filter(
-      (service: any) =>
+      (service: { is_active: boolean }) =>
         service.is_active
     )
   );

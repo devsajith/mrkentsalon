@@ -23,11 +23,10 @@ export async function getAvailableSlots(
   const services =
     await getServices();
 
-  const service =
-    services.find(
-      (s: any) =>
-        s.id === serviceId
-    );
+  const service = services.find(
+    (s: { id: string }) =>
+      s.id === serviceId
+  );
 
   if (!service) {
     throw new Error(
@@ -81,7 +80,7 @@ export async function getAvailableSlots(
         let occupancy = 0;
 
         bookings.forEach(
-          (booking: any) => {
+          (booking: { slot_time: string; end_time: string }) => {
 
             const overlapsSlot =
               overlaps(

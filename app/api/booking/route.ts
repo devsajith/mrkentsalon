@@ -134,7 +134,7 @@ export async function POST(
     let occupancy = 0;
 
     bookings.forEach(
-      (booking: any) => {
+      (booking: { slot_time: string; end_time: string }) => {
 
         const isOverlap =
           overlaps(
@@ -207,9 +207,7 @@ export async function POST(
       data,
     });
 
-  } catch (
-  error: any
-  ) {
+  } catch (error) {
 
     console.error(error);
 
@@ -217,7 +215,7 @@ export async function POST(
       {
         success: false,
         message:
-          error.message,
+          error instanceof Error ? error.message : "Internal Server Error",
       },
       {
         status: 500,
