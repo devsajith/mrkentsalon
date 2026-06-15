@@ -209,8 +209,6 @@ export async function POST(
 
   } catch (error) {
 
-    console.error(error);
-
     return NextResponse.json(
       {
         success: false,

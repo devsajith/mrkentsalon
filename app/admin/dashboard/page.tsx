@@ -1,11 +1,14 @@
 import { getDashboardStats } from "@/services/booking.service";
-
+import RealtimeWrapper from "@/components/Admin/RealtimeWrapper";
 export default async function DashboardPage() {
   const stats = await getDashboardStats();
 
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header section */}
+      <RealtimeWrapper
+        table="bookings"
+      />
       <div>
         <h1 className="text-2xl md:text-3xl font-black text-text-primary tracking-tight">
           Dashboard Overview
@@ -17,7 +20,7 @@ export default async function DashboardPage() {
 
       {/* Stats Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
+
         {/* Today's Bookings Card */}
         <div className="bg-white rounded-2xl border border-border-light shadow-sm p-6 hover:shadow-md transition-all relative overflow-hidden group">
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-accent" />

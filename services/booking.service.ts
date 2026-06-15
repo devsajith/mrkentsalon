@@ -1,36 +1,55 @@
 import { supabase } from "@/lib/supabase";
 
 export async function getBookings() {
+
   const { data, error } =
     await supabase
+
       .from("bookings")
+
       .select("*")
-      .order("booking_date", {
-        ascending: true,
-      });
+
+      .order(
+        "created_at",
+        {
+          ascending: false,
+        }
+      );
 
   if (error) {
+
     throw error;
+
   }
 
   return data;
+
 }
 
 export async function updateBookingStatus(
   id: string,
   status: string
 ) {
+
   const { error } =
     await supabase
+
       .from("bookings")
-      .update({ status })
+
+      .update({
+        status,
+      })
+
       .eq("id", id);
 
   if (error) {
+
     throw error;
+
   }
 
   return true;
+
 }
 
 export async function getDashboardStats() {
@@ -65,6 +84,7 @@ export async function getDashboardStats() {
     );
 
   return {
+
     todaysBookings:
       todaysBookings.length,
 
@@ -75,9 +95,18 @@ export async function getDashboardStats() {
       upcomingBookings.length,
 
     todaySchedule:
-      todaysBookings,
+      todaysBookings.sort(
+        (a, b) =>
+
+          a.slot_time.localeCompare(
+            b.slot_time
+          )
+      ),
+
   };
+
 }
+
 export async function getTodaysBookings() {
 
   const today =
@@ -87,12 +116,16 @@ export async function getTodaysBookings() {
 
   const { data, error } =
     await supabase
+
       .from("bookings")
+
       .select("*")
+
       .eq(
         "booking_date",
         today
       )
+
       .order(
         "slot_time",
         {
@@ -101,8 +134,11 @@ export async function getTodaysBookings() {
       );
 
   if (error) {
+
     throw error;
+
   }
 
   return data;
+
 }

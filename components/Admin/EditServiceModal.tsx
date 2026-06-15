@@ -64,8 +64,6 @@ export default function EditServiceModal({
 
     } catch (error) {
 
-      console.error(error);
-
       alert(
         "Failed to update service"
       );

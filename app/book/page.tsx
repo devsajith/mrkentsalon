@@ -39,6 +39,8 @@ export default function BookingPage() {
 
   // ─── Existing State (PRESERVED) ───────────────────────────────
   const [mounted, setMounted] = useState(false);
+  const [servicesLoading, setServicesLoading] = useState(true);
+  const [slotsLoading, setSlotsLoading] = useState(false);
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState("");
   const [selectedDate, setSelectedDate] = useState(threeDays[0].iso);
@@ -52,9 +54,16 @@ export default function BookingPage() {
   // ─── Existing Effects (PRESERVED) ────────────────────────────
   useEffect(() => {
     async function loadServices() {
-      const response = await fetch("/api/service");
-      const data = await response.json();
-      setServices(data);
+      try {
+        setServicesLoading(true);
+        const response = await fetch("/api/service");
+        const data = await response.json();
+        setServices(data);
+      } catch (err) {
+        // error handling
+      } finally {
+        setServicesLoading(false);
+      }
     }
     loadServices();
   }, []);
@@ -71,11 +80,18 @@ export default function BookingPage() {
     if (!serviceId || !date) {
       return;
     }
-    const response = await fetch(
-      `/api/availability?date=${date}&serviceId=${serviceId}`
-    );
-    const data = await response.json();
-    setSlots(data);
+    try {
+      setSlotsLoading(true);
+      const response = await fetch(
+        `/api/availability?date=${date}&serviceId=${serviceId}`
+      );
+      const data = await response.json();
+      setSlots(data);
+    } catch (err) {
+      // error handling
+    } finally {
+      setSlotsLoading(false);
+    }
   }
 
   async function handleBooking() {
@@ -144,7 +160,7 @@ export default function BookingPage() {
   }
 
   // ─── JSX ──────────────────────────────────────────────────────
-  if (!mounted) {
+  if (!mounted || servicesLoading) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
         <div className="w-10 h-10 rounded-full border-4 border-accent/25 border-t-accent animate-spin" />
@@ -158,7 +174,7 @@ export default function BookingPage() {
       {/* Two Column Grid layout for Desktop */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
         
-        {/* Left Column (Header, Service, Calendar, Slots) */}
+        {/* Left Column (Header, Calendar, Service, Slots) */}
         <div className="md:col-span-7 space-y-6">
           {/* Header block with back button, title, and subtitle */}
           <div className="flex items-center gap-4 py-4 md:py-6 border-b border-border-light/40 mb-6">
@@ -176,10 +192,49 @@ export default function BookingPage() {
             </div>
           </div>
 
-          {/* Service selection card */}
+          {/* Choose Date card (3 Days selector) */}
           <div className="bg-white rounded-2xl p-5 md:p-6 border border-border-light shadow-sm space-y-4">
             <h2 className="text-base font-bold text-text-primary flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/15 text-accent text-xs font-bold">1</span>
+              Choose Date
+            </h2>
+            
+            <div className="grid grid-cols-3 gap-3">
+              {threeDays.map((day) => {
+                const isSelected = selectedDate === day.iso;
+                return (
+                  <button
+                    key={day.iso}
+                    type="button"
+                    onClick={() => {
+                      setSelectedDate(day.iso);
+                      loadSlots(selectedService, day.iso);
+                    }}
+                    className={`tap-effect flex flex-col items-center justify-center rounded-2xl p-3 border transition-all ${
+                      isSelected
+                        ? "bg-accent text-white border-accent shadow-md scale-[1.02]"
+                        : "bg-surface text-text-primary border-border-light/20 hover:bg-border-light/50"
+                    }`}
+                  >
+                    <span className={`text-[10px] font-bold tracking-wider uppercase ${isSelected ? "text-white/80" : "text-text-muted"}`}>
+                      {day.label}
+                    </span>
+                    <span className="text-2xl font-black mt-1.5">
+                      {day.dateObj.getDate()}
+                    </span>
+                    <span className={`text-[9px] font-semibold mt-1 ${isSelected ? "text-white/80" : "text-text-secondary"}`}>
+                      {day.dateObj.toLocaleDateString('en-US', { month: 'short' })}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Service selection card */}
+          <div className="bg-white rounded-2xl p-5 md:p-6 border border-border-light shadow-sm space-y-4">
+            <h2 className="text-base font-bold text-text-primary flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/15 text-accent text-xs font-bold">2</span>
               Select Service
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -223,52 +278,17 @@ export default function BookingPage() {
             </div>
           </div>
 
-          {/* Choose Date card (3 Days selector) */}
-          <div className="bg-white rounded-2xl p-5 md:p-6 border border-border-light shadow-sm space-y-4">
-            <h2 className="text-base font-bold text-text-primary flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/15 text-accent text-xs font-bold">2</span>
-              Choose Date
-            </h2>
-            
-            <div className="grid grid-cols-3 gap-3">
-              {threeDays.map((day) => {
-                const isSelected = selectedDate === day.iso;
-                return (
-                  <button
-                    key={day.iso}
-                    type="button"
-                    onClick={() => {
-                      setSelectedDate(day.iso);
-                      loadSlots(selectedService, day.iso);
-                    }}
-                    className={`tap-effect flex flex-col items-center justify-center rounded-2xl p-3 border transition-all ${
-                      isSelected
-                        ? "bg-accent text-white border-accent shadow-md scale-[1.02]"
-                        : "bg-surface text-text-primary border-border-light/20 hover:bg-border-light/50"
-                    }`}
-                  >
-                    <span className={`text-[10px] font-bold tracking-wider uppercase ${isSelected ? "text-white/80" : "text-text-muted"}`}>
-                      {day.label}
-                    </span>
-                    <span className="text-2xl font-black mt-1.5">
-                      {day.dateObj.getDate()}
-                    </span>
-                    <span className={`text-[9px] font-semibold mt-1 ${isSelected ? "text-white/80" : "text-text-secondary"}`}>
-                      {day.dateObj.toLocaleDateString('en-US', { month: 'short' })}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Select Time Slot card */}
           <div className="bg-white rounded-2xl p-5 md:p-6 border border-border-light shadow-sm space-y-4">
             <h2 className="text-base font-bold text-text-primary flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/15 text-accent text-xs font-bold">3</span>
               Select Time Slot
             </h2>
-            {slots.length > 0 ? (
+            {slotsLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="w-8 h-8 rounded-full border-3 border-accent/25 border-t-accent animate-spin" />
+              </div>
+            ) : slots.length > 0 ? (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 max-h-[240px] overflow-y-auto pr-1">
                 {slots.map((slot) => {
                   const isSelected = selectedSlot === slot.time;
@@ -297,7 +317,7 @@ export default function BookingPage() {
               </div>
             ) : (
               <div className="text-center py-8 text-sm text-text-muted bg-surface rounded-xl border border-dashed border-border-light">
-                Please select service first
+                Please select date and service first
               </div>
             )}
           </div>

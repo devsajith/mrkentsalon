@@ -47,8 +47,6 @@ export default function SettingsForm({
 
     } catch (error) {
 
-      console.error(error);
-
       setMessage(
         "Failed to save settings"
       );

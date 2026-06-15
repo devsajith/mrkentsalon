@@ -1,5 +1,6 @@
 import BookingTable from "@/components/Admin/BookingTable";
 import { getBookings } from "@/services/booking.service";
+import RealtimeWrapper from "@/components/Admin/RealtimeWrapper";
 
 export default async function BookingsPage() {
   const bookings = await getBookings();
@@ -16,6 +17,10 @@ export default async function BookingsPage() {
 
   return (
     <div className="space-y-8 animate-fade-in">
+
+      <RealtimeWrapper
+        table="bookings"
+      />
       {/* Header section */}
       <div>
         <h1 className="text-2xl md:text-3xl font-black text-text-primary tracking-tight">
@@ -28,7 +33,7 @@ export default async function BookingsPage() {
 
       {/* Stats row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        
+
         {/* Today's Bookings card */}
         <div className="bg-white rounded-2xl border border-border-light shadow-sm p-5 hover:shadow-md transition-all relative overflow-hidden group">
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-accent" />

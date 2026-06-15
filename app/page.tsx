@@ -215,7 +215,7 @@ export default function HomePage() {
               <h2 className="text-white text-xl md:text-5xl font-extrabold leading-tight max-w-[200px] md:max-w-xl">
                 Get 20% Off Your Next Haircut!
               </h2>
-              <p className="hidden md:block text-white/80 text-sm leading-6 max-w-lg">
+              <p className="hidden md:block text-white/80 text-sm leading-6 max-w-lg text-justify">
                 Book your session with certified stylists and settle into a sharper, calmer grooming experience built around detail.
               </p>
               <div className="flex items-center gap-4">
@@ -253,7 +253,7 @@ export default function HomePage() {
                   Category
                 </h3>
               </div>
-              <p className="hidden md:block max-w-sm text-sm leading-5 text-text-secondary">
+              <p className="hidden md:block max-w-sm text-sm leading-5 text-text-secondary text-justify">
                 Choose a focus and see the stylists, signature work, and booking options that match your look.
               </p>
             </div>
@@ -359,7 +359,7 @@ export default function HomePage() {
               <h2 className="text-2xl md:text-4xl font-extrabold text-text-primary leading-tight">
                 Crafting Styles, Building Confidence
               </h2>
-              <p className="text-xs md:text-sm text-text-secondary leading-relaxed md:max-w-md">
+              <p className="text-xs md:text-sm text-text-secondary leading-relaxed md:max-w-md text-justify">
                 At Mr. Kent&apos;s Salon, we believe that grooming is more than just a haircut—it&apos;s an experience. Established in 2015, we have been dedicated to providing top-tier cuts, styling, and premium shaving services in a warm, sophisticated environment.
               </p>
 
@@ -421,7 +421,7 @@ export default function HomePage() {
             <p className="hidden md:block text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Recent work</p>
             <h1 className="text-2xl font-bold text-text-primary md:text-3xl md:mt-1">Our Highlights</h1>
           </div>
-          <p className="text-xs text-text-secondary mt-1 md:text-sm md:max-w-md md:leading-5">
+          <p className="text-xs text-text-secondary mt-1 md:text-sm md:max-w-md md:leading-5 text-justify">
             Explore our latest transformations and signature styles
           </p>
         </div>
@@ -472,7 +472,7 @@ export default function HomePage() {
                   </span>
                 </div>
 
-                <p className="text-xs text-text-secondary mt-2 leading-relaxed h-[36px] overflow-hidden">
+                <p className="text-xs text-text-secondary mt-2 leading-relaxed h-[36px] overflow-hidden text-justify">
                   {item.description}
                 </p>
 
@@ -503,7 +503,7 @@ export default function HomePage() {
       <section id="contact" className="scroll-mt-20 space-y-5">
         <div className="px-5 md:px-0 scroll-animate">
           <h1 className="text-2xl font-bold text-text-primary md:text-3xl">Contact Us</h1>
-          <p className="text-xs text-text-secondary mt-1 md:text-sm">
+          <p className="text-xs text-text-secondary mt-1 md:text-sm text-justify">
             Have questions or want to speak with us? Drop a message!
           </p>
         </div>

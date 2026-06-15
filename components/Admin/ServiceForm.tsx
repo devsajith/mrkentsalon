@@ -40,8 +40,6 @@ export default function ServiceForm() {
 
     } catch (error) {
 
-      console.error(error);
-
       alert(
         "Failed to create service"
       );

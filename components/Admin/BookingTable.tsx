@@ -83,8 +83,6 @@ export default function BookingTable({
 
     } catch (error) {
 
-      console.error(error);
-
       alert(
         "Failed to update booking"
       );
