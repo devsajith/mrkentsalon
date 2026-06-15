@@ -1,3 +1,6 @@
+export const dynamic ="force-dynamic";
+export const revalidate =0;
+
 import { getDashboardStats } from "@/services/booking.service";
 import RealtimeWrapper from "@/components/Admin/RealtimeWrapper";
 export default async function DashboardPage() {

@@ -1,3 +1,6 @@
+export const dynamic ="force-dynamic";
+export const revalidate =0;
+
 import BookingTable from "@/components/Admin/BookingTable";
 import { getBookings } from "@/services/booking.service";
 import RealtimeWrapper from "@/components/Admin/RealtimeWrapper";
