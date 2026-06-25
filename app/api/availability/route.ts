@@ -23,6 +23,9 @@ export async function GET(
       "serviceId"
     );
 
+  const bookingType =
+    searchParams.get("bookingType") || "normal";
+
   if (
     !date ||
     !serviceId
@@ -43,7 +46,8 @@ export async function GET(
   const slots =
     await getAvailableSlots(
       date,
-      serviceId
+      serviceId,
+      bookingType
     );
 
   return NextResponse.json(

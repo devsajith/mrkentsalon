@@ -13,6 +13,7 @@ type Booking = {
   service_name: string;
   duration: number;
   status: string;
+  booking_type?: string;
 };
 
 export default function BookingTable({
@@ -25,6 +26,9 @@ export default function BookingTable({
     useState("");
 
   const [statusFilter, setStatusFilter] =
+    useState("all");
+
+  const [typeFilter, setTypeFilter] =
     useState("all");
 
   const [loadingId, setLoadingId] =
@@ -52,9 +56,17 @@ export default function BookingTable({
               : booking.status ===
               statusFilter;
 
+          const matchesType =
+            typeFilter === "all"
+              ? true
+              : typeFilter === "emergency"
+                ? booking.booking_type === "emergency"
+                : booking.booking_type !== "emergency";
+
           return (
             matchesSearch &&
-            matchesStatus
+            matchesStatus &&
+            matchesType
           );
         }
       );
@@ -63,6 +75,7 @@ export default function BookingTable({
       bookings,
       search,
       statusFilter,
+      typeFilter,
     ]);
 
   async function handleStatus(
@@ -114,6 +127,23 @@ export default function BookingTable({
             />
           </div>
 
+          {/* Type Dropdown */}
+          <div className="relative w-full md:w-48 shrink-0">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="w-full appearance-none bg-surface/50 border border-border-light/60 rounded-xl py-3 pl-4 pr-10 text-sm font-bold text-text-primary outline-none border-transparent focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all cursor-pointer"
+            >
+              <option value="all">All Types</option>
+              <option value="normal">Normal Bookings</option>
+              <option value="emergency">Emergency Bookings</option>
+            </select>
+            {/* Custom chevron */}
+            <svg xmlns="http://www.w3.org/2000/svg" className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+
           {/* Status Dropdown */}
           <div className="relative w-full md:w-48 shrink-0">
             <select
@@ -143,6 +173,7 @@ export default function BookingTable({
                 <th className="p-4 text-left text-[11px] font-bold text-text-muted uppercase tracking-wider">Customer</th>
                 <th className="p-4 text-left text-[11px] font-bold text-text-muted uppercase tracking-wider">Contact</th>
                 <th className="p-4 text-left text-[11px] font-bold text-text-muted uppercase tracking-wider">Service</th>
+                <th className="p-4 text-left text-[11px] font-bold text-text-muted uppercase tracking-wider">Type</th>
                 <th className="p-4 text-left text-[11px] font-bold text-text-muted uppercase tracking-wider">Date & Time</th>
                 <th className="p-4 text-left text-[11px] font-bold text-text-muted uppercase tracking-wider">Duration</th>
                 <th className="p-4 text-left text-[11px] font-bold text-text-muted uppercase tracking-wider">Status</th>
@@ -152,7 +183,7 @@ export default function BookingTable({
             <tbody className="divide-y divide-border-light/40">
               {filteredBookings.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-sm font-semibold text-text-muted">
+                  <td colSpan={8} className="p-8 text-center text-sm font-semibold text-text-muted">
                     No bookings found matching filters
                   </td>
                 </tr>
@@ -162,7 +193,11 @@ export default function BookingTable({
                     {/* Customer */}
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-surface text-text-primary text-xs font-bold flex items-center justify-center shrink-0 border border-border-light/60">
+                        <div className={`w-8 h-8 rounded-full text-xs font-bold flex items-center justify-center shrink-0 border ${
+                          booking.booking_type === "emergency"
+                            ? "bg-red-50 text-red-600 border-red-200"
+                            : "bg-surface text-text-primary border-border-light/60"
+                        }`}>
                           {booking.customer_name ? booking.customer_name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2) : "MK"}
                         </div>
                         <span className="font-bold text-sm text-text-primary">{booking.customer_name}</span>
@@ -177,9 +212,23 @@ export default function BookingTable({
                     {/* Service */}
                     <td className="p-4">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-text-primary border border-border-light/40">
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                        <span className={`w-1.5 h-1.5 rounded-full ${booking.booking_type === "emergency" ? "bg-red-600" : "bg-accent"}`} />
                         {booking.service_name}
                       </span>
+                    </td>
+
+                    {/* Booking Type */}
+                    <td className="p-4">
+                      {booking.booking_type === "emergency" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-red-700 border border-red-100">
+                          <span className="w-1 h-1 rounded-full bg-red-600 animate-pulse" />
+                          Emergency
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center rounded-full bg-slate-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-600 border border-slate-100">
+                          Normal
+                        </span>
+                      )}
                     </td>
 
                     {/* Date & Time */}
@@ -187,7 +236,7 @@ export default function BookingTable({
                       <div className="font-bold text-sm text-text-primary">
                         {booking.booking_date}
                       </div>
-                      <div className="text-xs font-semibold text-accent mt-0.5">
+                      <div className={`text-xs font-semibold mt-0.5 ${booking.booking_type === "emergency" ? "text-red-600" : "text-accent"}`}>
                         {booking.slot_time} - {booking.end_time}
                       </div>
                     </td>

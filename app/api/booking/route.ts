@@ -30,6 +30,7 @@ export async function POST(
 
       slot_time,
       end_time,
+      booking_type,
     } = body;
 
     // -----------------------------
@@ -107,10 +108,11 @@ export async function POST(
     const settings =
       await getSettings();
 
+    const currentBookingType = booking_type === "emergency" ? "emergency" : "normal";
     const capacity =
-      Number(
-        settings.slot_capacity
-      );
+      currentBookingType === "emergency"
+        ? Number(settings.walkin_capacity || 0)
+        : Number(settings.slot_capacity || 0);
 
     const {
       data: bookings,
@@ -134,7 +136,12 @@ export async function POST(
     let occupancy = 0;
 
     bookings.forEach(
-      (booking: { slot_time: string; end_time: string }) => {
+      (booking: { slot_time: string; end_time: string; booking_type?: string }) => {
+        const isTargetType = currentBookingType === "emergency"
+          ? booking.booking_type === "emergency"
+          : booking.booking_type !== "emergency";
+
+        if (!isTargetType) return;
 
         const isOverlap =
           overlaps(
@@ -194,6 +201,7 @@ export async function POST(
         status:
           "confirmed",
         booking_reference: bookingReference,
+        booking_type: currentBookingType,
 
       })
       .select();

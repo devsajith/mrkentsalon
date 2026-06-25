@@ -18,7 +18,8 @@ type Slot = {
   isPast?: boolean;
   isFullyBooked?: boolean;
 };
-export default function BookingPage() {
+
+export default function EmergencyBookingPage() {
   // Generate the 3 days (Today, Tomorrow, Day After)
   const threeDays = Array.from({ length: 3 }).map((_, i) => {
     const d = new Date();
@@ -86,8 +87,9 @@ export default function BookingPage() {
     }
     try {
       setSlotsLoading(true);
+      // Fetch availability specifying bookingType=emergency
       const response = await fetch(
-        `/api/availability?date=${date}&serviceId=${serviceId}`
+        `/api/availability?date=${date}&serviceId=${serviceId}&bookingType=emergency`
       );
       const data = await response.json();
       setSlots(data);
@@ -126,6 +128,7 @@ export default function BookingPage() {
           duration: service.duration,
           service_id: service.id,
           service_name: service.name,
+          booking_type: "emergency", // Specify emergency booking type
         }),
       });
 
@@ -137,7 +140,7 @@ export default function BookingPage() {
 
       setMessage("Booking Confirmed");
 
-      window.location.href = `/booksuccess?reference=${result.data[0].booking_reference}&customer=${customerName}&service=${service.name}&date=${selectedDate}&time=${slot.time}-${slot.endTime}`;
+      window.location.href = `/booksuccess?reference=${result.data[0].booking_reference}&customer=${customerName}&service=${service.name}&date=${selectedDate}&time=${slot.time}-${slot.endTime}&type=emergency`;
 
       setCustomerName("");
       setPhone("");
@@ -167,39 +170,55 @@ export default function BookingPage() {
   if (!mounted || servicesLoading) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
-        <div className="w-10 h-10 rounded-full border-4 border-accent/25 border-t-accent animate-spin" />
+        <div className="w-10 h-10 rounded-full border-4 border-red-600/25 border-t-red-600 animate-spin" />
       </div>
     );
   }
 
   return (
     <div className="mobile-container bg-white md:bg-transparent min-h-dvh md:min-h-0 pb-12 md:px-4">
-      
       {/* Two Column Grid layout for Desktop */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-        
         {/* Left Column (Header, Calendar, Service, Slots) */}
         <div className="md:col-span-7 space-y-6">
           {/* Header block with back button, title, and subtitle */}
           <div className="flex items-center gap-4 py-4 md:py-6 border-b border-border-light/40 mb-6">
             <Link
               href="/"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-surface border border-border-light text-text-primary hover:bg-border-light hover:text-accent transition-all tap-effect"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-surface border border-border-light text-text-primary hover:bg-border-light hover:text-red-600 transition-all tap-effect"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </Link>
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-text-primary tracking-tight">Book an Appointment</h1>
-              <p className="text-xs md:text-sm text-text-secondary">Follow the steps to configure your booking</p>
+              <h1 className="text-xl md:text-2xl font-bold text-red-600 tracking-tight flex items-center gap-2">
+                <span className="animate-pulse inline-block w-2.5 h-2.5 rounded-full bg-red-600 shrink-0" />
+                Emergency Customer Booking
+              </h1>
+              <p className="text-xs md:text-sm text-text-secondary">Book using dedicated walk-in / emergency capacity slots</p>
+            </div>
+          </div>
+
+          {/* Alert Notice Banner */}
+          <div className="bg-red-50 border border-red-100 rounded-2xl p-4 flex gap-3">
+            <div className="text-red-600 mt-0.5 shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-red-800">Priority Emergency Slots</h3>
+              <p className="text-xs text-red-700 mt-0.5 leading-relaxed">
+                These slots are strictly reserved for emergency and walk-in customers. Capacity is limited and runs separately from normal client bookings.
+              </p>
             </div>
           </div>
 
           {/* Choose Date card (3 Days selector) */}
           <div className="bg-white rounded-2xl p-5 md:p-6 border border-border-light shadow-sm space-y-4">
             <h2 className="text-base font-bold text-text-primary flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/15 text-accent text-xs font-bold">1</span>
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-600/15 text-red-600 text-xs font-bold">1</span>
               Choose Date
             </h2>
             
@@ -218,7 +237,7 @@ export default function BookingPage() {
                     }}
                     className={`tap-effect flex flex-col items-center justify-center rounded-2xl p-3 border transition-all ${
                       isSelected
-                        ? "bg-accent text-white border-accent shadow-md scale-[1.02]"
+                        ? "bg-red-600 text-white border-red-600 shadow-md scale-[1.02]"
                         : "bg-surface text-text-primary border-border-light/20 hover:bg-border-light/50"
                     }`}
                   >
@@ -241,14 +260,14 @@ export default function BookingPage() {
           <div className="bg-white rounded-2xl p-5 md:p-6 border border-border-light shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-text-primary flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/15 text-accent text-xs font-bold">2</span>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-600/15 text-red-600 text-xs font-bold">2</span>
                 Select Service
               </h2>
               {selectedService && !isServiceExpanded && (
                 <button
                   type="button"
                   onClick={() => setIsServiceExpanded(true)}
-                  className="text-xs font-bold text-accent hover:text-accent-light flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer"
                 >
                   Change
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -264,12 +283,12 @@ export default function BookingPage() {
                 {services.filter(s => s.id === selectedService).map((service) => (
                   <div
                     key={service.id}
-                    className="p-4 rounded-xl border border-accent bg-accent/10 text-text-primary flex items-center justify-between"
+                    className="p-4 rounded-xl border border-red-200 bg-red-50 text-text-primary flex items-center justify-between"
                   >
                     <div>
                       <p className="font-semibold text-sm">{service.name}</p>
                       <p className="text-xs text-text-secondary mt-1 flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         {service.duration} mins
@@ -278,7 +297,7 @@ export default function BookingPage() {
                     <button
                       type="button"
                       onClick={() => setIsServiceExpanded(true)}
-                      className="h-8 w-8 rounded-full hover:bg-accent/15 flex items-center justify-center text-accent transition-colors cursor-pointer"
+                      className="h-8 w-8 rounded-full hover:bg-red-100 flex items-center justify-center text-red-600 transition-colors cursor-pointer"
                       title="Expand services"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -306,21 +325,21 @@ export default function BookingPage() {
                       }}
                       className={`tap-effect text-left p-4 rounded-xl border transition-all flex items-center justify-between ${
                         isSelected
-                          ? "bg-accent/10 border-accent text-text-primary shadow-sm"
+                          ? "bg-red-50 border-red-200 text-text-primary shadow-sm"
                           : "bg-surface border-border-light/20 hover:bg-border-light/50 text-text-primary"
                       }`}
                     >
                       <div>
                         <p className="font-semibold text-sm">{service.name}</p>
                         <p className="text-xs text-text-secondary mt-1 flex items-center gap-1">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           {service.duration} mins
                         </p>
                       </div>
                       <div className={`h-5 w-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
-                        isSelected ? "border-accent bg-accent text-white" : "border-text-muted/40"
+                        isSelected ? "border-red-600 bg-red-600 text-white" : "border-text-muted/40"
                       }`}>
                         {isSelected && (
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
@@ -339,14 +358,14 @@ export default function BookingPage() {
           <div className="bg-white rounded-2xl p-5 md:p-6 border border-border-light shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-text-primary flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/15 text-accent text-xs font-bold">3</span>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-600/15 text-red-600 text-xs font-bold">3</span>
                 Select Time Slot
               </h2>
               {selectedSlot && !isSlotExpanded && (
                 <button
                   type="button"
                   onClick={() => setIsSlotExpanded(true)}
-                  className="text-xs font-bold text-accent hover:text-accent-light flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer"
                 >
                   Change
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -358,18 +377,18 @@ export default function BookingPage() {
 
             {slotsLoading ? (
               <div className="flex justify-center items-center py-8">
-                <div className="w-8 h-8 rounded-full border-3 border-accent/25 border-t-accent animate-spin" />
+                <div className="w-8 h-8 rounded-full border-3 border-red-600/25 border-t-red-600 animate-spin" />
               </div>
             ) : selectedSlot && !isSlotExpanded ? (
               // Show ONLY selected slot
               <div className="relative">
                 <div
-                  className="p-4 rounded-xl border border-accent bg-accent/10 text-text-primary flex items-center justify-between"
+                  className="p-4 rounded-xl border border-red-200 bg-red-50 text-text-primary flex items-center justify-between"
                 >
                   <div>
-                    <p className="font-bold text-sm text-accent">Selected Time Slot</p>
+                    <p className="font-bold text-sm text-red-600">Selected Time Slot</p>
                     <p className="text-xs text-text-secondary mt-1 flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       {selectedSlot} - {slots.find(s => s.time === selectedSlot)?.endTime}
@@ -378,7 +397,7 @@ export default function BookingPage() {
                   <button
                     type="button"
                     onClick={() => setIsSlotExpanded(true)}
-                    className="h-8 w-8 rounded-full hover:bg-accent/15 flex items-center justify-center text-accent transition-colors cursor-pointer"
+                    className="h-8 w-8 rounded-full hover:bg-red-100 flex items-center justify-center text-red-600 transition-colors cursor-pointer"
                     title="Expand time slots"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -404,7 +423,7 @@ export default function BookingPage() {
                       }}
                       className={`tap-effect rounded-xl py-3 text-xs font-bold text-center border transition-all ${
                         isSelected
-                          ? "bg-accent text-white border-accent shadow-md"
+                          ? "bg-red-600 text-white border-red-600 shadow-md"
                           : slot.available
                             ? "bg-surface text-text-primary border border-border-light/20 hover:bg-border-light/60"
                             : slot.isFullyBooked && !slot.isPast
@@ -432,9 +451,8 @@ export default function BookingPage() {
         {/* Right Column (Booking Details Form / Summary - sticky on desktop) */}
         <div className="md:col-span-5 md:sticky md:top-24 space-y-6">
           <div className="bg-white rounded-2xl p-5 md:p-6 border border-border-light shadow-lg space-y-6">
-            
             <h2 className="text-base font-bold text-text-primary pb-3 border-b border-border-light flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2-2V12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
               </svg>
               Booking Summary
@@ -477,11 +495,17 @@ export default function BookingPage() {
                   {selectedDate ? (
                     <>
                       {formatSelectedDate(selectedDate)}
-                      {selectedSlot && <span className="block text-accent font-black mt-0.5">@ {selectedSlot}</span>}
+                      {selectedSlot && <span className="block text-red-600 font-black mt-0.5">@ {selectedSlot}</span>}
                     </>
                   ) : (
                     <span className="text-text-muted font-normal italic">Not selected</span>
                   )}
+                </span>
+              </div>
+              <div className="flex items-start justify-between gap-4 pt-2 border-t border-border-light/60">
+                <span className="text-xs text-text-secondary font-medium">Type:</span>
+                <span className="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700 border border-red-200 uppercase tracking-wider">
+                  Emergency
                 </span>
               </div>
             </div>
@@ -489,7 +513,7 @@ export default function BookingPage() {
             {/* Step 4: Your Details */}
             <div className="space-y-4">
               <h2 className="text-base font-bold text-text-primary flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/15 text-accent text-xs font-bold">4</span>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-600/15 text-red-600 text-xs font-bold">4</span>
                 Your Details
               </h2>
               <div className="space-y-3">
@@ -502,7 +526,7 @@ export default function BookingPage() {
                     placeholder="Customer Name"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
-                    className="w-full rounded-xl bg-surface py-3.5 pl-11 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none border border-transparent focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all font-medium"
+                    className="w-full rounded-xl bg-surface py-3.5 pl-11 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none border border-transparent focus:border-red-600/30 focus:ring-4 focus:ring-red-600/10 transition-all font-medium"
                   />
                 </div>
                 <div className="relative">
@@ -514,7 +538,7 @@ export default function BookingPage() {
                     placeholder="Phone Number"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full rounded-xl bg-surface py-3.5 pl-11 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none border border-transparent focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all font-medium"
+                    className="w-full rounded-xl bg-surface py-3.5 pl-11 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none border border-transparent focus:border-red-600/30 focus:ring-4 focus:ring-red-600/10 transition-all font-medium"
                   />
                 </div>
               </div>
@@ -526,7 +550,7 @@ export default function BookingPage() {
                 type="button"
                 onClick={handleBooking}
                 disabled={loading || !selectedService || !selectedDate || !selectedSlot || !customerName || !phone}
-                className="tap-effect w-full rounded-xl bg-gradient-to-r from-accent to-accent-light py-4 text-sm font-bold text-white shadow-md hover:shadow-lg transition-all active:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent-light flex items-center justify-center gap-2"
+                className="tap-effect w-full rounded-xl bg-red-600 py-4 text-sm font-bold text-white shadow-md hover:shadow-lg transition-all active:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-700 flex items-center justify-center gap-2 cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -537,13 +561,12 @@ export default function BookingPage() {
                     Booking…
                   </>
                 ) : (
-                  "Confirm Booking"
+                  "Confirm Emergency Booking"
                 )}
               </button>
             </div>
           </div>
         </div>
-
       </div>
 
       {/* ── Fixed Bottom – Book Now (Mobile View only) ── */}
@@ -553,7 +576,7 @@ export default function BookingPage() {
             type="button"
             onClick={handleBooking}
             disabled={loading}
-            className="tap-effect w-full rounded-2xl bg-gradient-to-r from-accent to-accent-light py-4 text-base font-bold text-white shadow-lg transition-all active:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+            className="tap-effect w-full rounded-2xl bg-red-600 py-4 text-base font-bold text-white shadow-lg transition-all active:shadow-md disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -564,7 +587,7 @@ export default function BookingPage() {
                 Booking…
               </span>
             ) : (
-              "Book Now"
+              "Book Emergency Now"
             )}
           </button>
         </div>

@@ -80,6 +80,13 @@ export async function getDashboardStats() {
         today
     );
 
+  const todaysEmergencyBookings =
+    todaysBookings.filter(
+      (booking) =>
+        booking.booking_type ===
+        "emergency"
+    );
+
   const completedBookings =
     bookings.filter(
       (booking) =>
@@ -98,6 +105,9 @@ export async function getDashboardStats() {
 
     todaysBookings:
       todaysBookings.length,
+
+    todaysEmergencyBookings:
+      todaysEmergencyBookings.length,
 
     completedBookings:
       completedBookings.length,

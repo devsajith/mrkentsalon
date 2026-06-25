@@ -14,7 +14,8 @@ import {
 
 export async function getAvailableSlots(
   date: string,
-  serviceId: string
+  serviceId: string,
+  bookingType: string = "normal"
 ) {
 
   const settings =
@@ -38,9 +39,9 @@ export async function getAvailableSlots(
     service.duration;
 
   const capacity =
-    Number(
-      settings.slot_capacity
-    );
+    bookingType === "emergency"
+      ? Number(settings.walkin_capacity || 0)
+      : Number(settings.slot_capacity || 0);
 
   const { data: bookings,
     error } =
@@ -59,6 +60,18 @@ export async function getAvailableSlots(
   if (error) {
     throw error;
   }
+
+  const todayStr = new Date().toLocaleDateString("en-CA", {
+    timeZone: "Asia/Kolkata",
+  });
+  const now = new Date();
+  const currentKolkataTime = now.toLocaleTimeString("en-US", {
+    timeZone: "Asia/Kolkata",
+    hour12: false,
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const isToday = date === todayStr;
 
   const candidateSlots =
     generateTimeSlots(
@@ -80,7 +93,12 @@ export async function getAvailableSlots(
         let occupancy = 0;
 
         bookings.forEach(
-          (booking: { slot_time: string; end_time: string }) => {
+          (booking: { slot_time: string; end_time: string; booking_type?: string }) => {
+            const isTargetType = bookingType === "emergency"
+              ? booking.booking_type === "emergency"
+              : booking.booking_type !== "emergency";
+
+            if (!isTargetType) return;
 
             const overlapsSlot =
               overlaps(
@@ -99,6 +117,9 @@ export async function getAvailableSlots(
           }
         );
 
+        const isPast = isToday && (slot < currentKolkataTime);
+        const isFullyBooked = occupancy >= capacity;
+
         return {
 
           time: slot,
@@ -109,17 +130,20 @@ export async function getAvailableSlots(
             occupancy,
 
           remaining:
-            capacity -
-            occupancy,
+            Math.max(0, capacity - occupancy),
 
           available:
             occupancy <
-            capacity,
+            capacity && !isPast,
+
+          isPast,
+
+          isFullyBooked,
 
         };
 
       }
     );
 
-  return availableSlots;
+  return availableSlots.filter((slot) => !slot.isPast);
 }

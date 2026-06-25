@@ -218,11 +218,14 @@ export default function HomePage() {
               <p className="hidden md:block text-white/80 text-sm leading-6 max-w-lg text-justify">
                 Book your session with certified stylists and settle into a sharper, calmer grooming experience built around detail.
               </p>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 flex-wrap">
                 <Link href="/book" className="tap-effect inline-block bg-accent text-white text-xs md:text-sm font-bold px-5 md:px-6 py-2.5 md:py-3 rounded-full hover:bg-accent-light transition-colors shadow-[0_16px_36px_rgba(232,100,44,0.35)]">
                   Book Now
                 </Link>
-                <a href="#highlights" className="hidden md:inline-flex text-sm font-bold text-white/90 hover:text-white transition-colors">
+                <Link href="/book/emergency" className="tap-effect inline-block bg-red-600 text-white text-xs md:text-sm font-bold px-5 md:px-6 py-2.5 md:py-3 rounded-full hover:bg-red-700 transition-colors shadow-[0_16px_36px_rgba(220,38,38,0.35)]">
+                  Emergency Booking
+                </Link>
+                <a href="#highlights" className="hidden md:inline-flex text-sm font-bold text-white/90 hover:text-white transition-colors ml-2">
                   View Signature Styles
                 </a>
               </div>

@@ -150,6 +150,15 @@ export default function SettingsForm({
                 className="w-full bg-white border border-border-light/80 rounded-xl py-2.5 px-4 text-sm font-semibold text-text-primary outline-none focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all"
               />
             </div>
+             <div className="space-y-1">
+              <label className="text-xs font-bold text-text-secondary">Walk in Capacity</label>
+              <input
+                type="number"
+                value={formData.walkin_capacity || ""}
+                onChange={(e) => handleChange("walkin_capacity", e.target.value)}
+                className="w-full bg-white border border-border-light/80 rounded-xl py-2.5 px-4 text-sm font-semibold text-text-primary outline-none focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all"
+              />
+            </div>
           </div>
         </div>
 

@@ -43,7 +43,10 @@ export default function Header() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <Link href="/book/emergency" className="border border-red-600/30 text-red-600 hover:bg-red-50 text-xs font-bold px-4 py-2.5 rounded-full transition-colors">
+            Emergency Booking
+          </Link>
           <Link href="/book" className="bg-accent text-white text-xs font-bold px-5 py-2.5 rounded-full hover:bg-accent-light transition-colors shadow-[0_14px_28px_rgba(232,100,44,0.28)]">
             Book Now
           </Link>
