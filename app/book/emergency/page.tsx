@@ -112,6 +112,14 @@ export default function EmergencyBookingPage() {
       return;
     }
 
+    // Indian Phone Number Validation
+    const cleanedPhone = phone.trim().replace(/[\s-]/g, "");
+    const indianPhoneRegex = /^(?:(?:\+|0{0,2})91[\s-]?)?[6-9]\d{9}$/;
+    if (!indianPhoneRegex.test(cleanedPhone)) {
+      setMessage("Please enter a valid 10-digit Indian phone number");
+      return;
+    }
+
     const service = services.find((s) => s.id === selectedService);
     if (!service) return;
 

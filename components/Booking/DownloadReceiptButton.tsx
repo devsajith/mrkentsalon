@@ -19,7 +19,7 @@ export default function DownloadReceiptButton({
 }) {
   const downloadedRef = useRef(false);
 
-  const generateAndDownload = () => {
+  const generateAndDownload = (isAuto = false) => {
     try {
       const canvas = document.createElement("canvas");
       canvas.width = 600;
@@ -143,13 +143,74 @@ export default function DownloadReceiptButton({
 
       // Generate Data URL and trigger download
       const dataUrl = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.download = `mrkent-booking-${reference}.png`;
-      link.href = dataUrl;
-      link.click();
+
+      if (isIOSDevice() && !isAuto) {
+        // iOS Safari popup window flow
+        const newWindow = window.open();
+        if (newWindow) {
+          newWindow.document.write(`
+            <html>
+              <head>
+                <title>MR.KENT BARBERS - Receipt</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                  body {
+                    margin: 0;
+                    background: #09090b;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                    color: #ffffff;
+                    font-family: sans-serif;
+                    padding: 20px;
+                    box-sizing: border-box;
+                  }
+                  img {
+                    max-width: 100%;
+                    max-height: 80vh;
+                    border-radius: 16px;
+                    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+                    border: 1px solid rgba(255,255,255,0.1);
+                  }
+                  p {
+                    margin-top: 24px;
+                    font-size: 14px;
+                    color: #a1a1aa;
+                    text-align: center;
+                    font-weight: 600;
+                    line-height: 1.5;
+                  }
+                </style>
+              </head>
+              <body>
+                <img src="${dataUrl}" alt="Booking Receipt" />
+                <p>Long-press the receipt image above<br>and tap <strong>"Save to Photos"</strong> to save to your Gallery.</p>
+              </body>
+            </html>
+          `);
+          newWindow.document.close();
+        } else {
+          // Fallback if popup blocker hits
+          window.location.href = dataUrl;
+        }
+      } else {
+        // Standard Direct Download Flow for Desktop / Android
+        const link = document.createElement("a");
+        link.download = `mrkent-booking-${reference}.png`;
+        link.href = dataUrl;
+        link.click();
+      }
     } catch (e) {
       console.error("Failed to generate ticket image:", e);
     }
+  };
+
+  const isIOSDevice = () => {
+    if (typeof window === "undefined") return false;
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+           (navigator.userAgent.includes("Mac") && "ontouchend" in document);
   };
 
   useEffect(() => {
@@ -157,31 +218,38 @@ export default function DownloadReceiptButton({
       downloadedRef.current = true;
       // Slight timeout to let the page animation play smoothly first
       const timer = setTimeout(() => {
-        generateAndDownload();
+        generateAndDownload(true);
       }, 800);
       return () => clearTimeout(timer);
     }
   }, []);
 
   return (
-    <button
-      onClick={generateAndDownload}
-      className="flex items-center justify-center gap-2 w-full h-12 rounded-xl text-white font-bold text-sm shadow-sm hover:shadow-md transition-all active:scale-[0.98] cursor-pointer"
-      style={{ background: "linear-gradient(135deg, #10B981, #059669)" }}
-    >
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+    <div className="w-full space-y-2 text-center">
+      <button
+        onClick={() => generateAndDownload(false)}
+        className="flex items-center justify-center gap-2 w-full h-12 rounded-xl text-white font-bold text-sm shadow-sm hover:shadow-md transition-all active:scale-[0.98] cursor-pointer"
+        style={{ background: "linear-gradient(135deg, #10B981, #059669)" }}
       >
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
-      </svg>
-      Download Confirmation Image
-    </button>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+        </svg>
+        Download Confirmation Image
+      </button>
+      {isIOSDevice() && (
+        <p className="text-[10px] text-text-secondary leading-normal">
+          iPhone Users: Tap button to view receipt, then long-press to save to Photos.
+        </p>
+      )}
+    </div>
   );
 }
