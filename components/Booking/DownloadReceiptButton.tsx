@@ -166,12 +166,12 @@ export default function DownloadReceiptButton({
   return (
     <button
       onClick={generateAndDownload}
-      className="flex items-center justify-center gap-2 w-full h-14 rounded-full text-white font-semibold text-base shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
+      className="flex items-center justify-center gap-2 w-full h-12 rounded-xl text-white font-bold text-sm shadow-sm hover:shadow-md transition-all active:scale-[0.98] cursor-pointer"
       style={{ background: "linear-gradient(135deg, #10B981, #059669)" }}
     >
       <svg
-        width="18"
-        height="18"
+        width="16"
+        height="16"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"

@@ -95,8 +95,32 @@ export default async function BookingSuccess({
         </div>
       </div>
 
+      {/* Notice Banner */}
+      <div className="w-full max-w-sm mt-4 p-3 bg-emerald-50 border border-emerald-200/50 rounded-xl flex items-start gap-2.5 animate-slide-up animate-delay-450">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#10B981"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="shrink-0 mt-0.5"
+        >
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+          <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+        <div className="space-y-0.5">
+          <p className="text-xs font-bold text-emerald-800">Receipt Saved</p>
+          <p className="text-[10px] text-emerald-700 font-semibold leading-relaxed">
+            The booking confirmation image has been automatically saved to your gallery.
+          </p>
+        </div>
+      </div>
+
       {/* Download Receipt Image Section */}
-      <div className="w-full max-w-sm mt-4 animate-slide-up animate-delay-450">
+      <div className="w-full max-w-sm mt-3 animate-slide-up animate-delay-450">
         <DownloadReceiptButton
           reference={params.reference}
           customer={params.customer}
