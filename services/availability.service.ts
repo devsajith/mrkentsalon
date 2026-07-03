@@ -38,8 +38,9 @@ export async function getAvailableSlots(
   const duration =
     service.duration;
 
+  const isEmergency = bookingType === "emergency" || (typeof bookingType === "string" && bookingType.startsWith("emergency"));
   const capacity =
-    bookingType === "emergency"
+    isEmergency
       ? Number(settings.walkin_capacity || 0)
       : Number(settings.slot_capacity || 0);
 
@@ -94,9 +95,9 @@ export async function getAvailableSlots(
 
         bookings.forEach(
           (booking: { slot_time: string; end_time: string; booking_type?: string }) => {
-            const isTargetType = bookingType === "emergency"
-              ? booking.booking_type === "emergency"
-              : booking.booking_type !== "emergency";
+            const isTargetType = isEmergency
+              ? booking.booking_type?.startsWith("emergency")
+              : !booking.booking_type?.startsWith("emergency");
 
             if (!isTargetType) return;
 

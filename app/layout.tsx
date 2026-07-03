@@ -10,9 +10,9 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Mr. Kent's Salon — Premium Grooming",
+  title: "MR.KENT BARBERS — Premium Grooming",
   description:
-    "Discover the beauty in you. Book your next haircut, styling, or grooming session at Mr. Kent's Salon.",
+    "Discover the beauty in you. Book your next haircut, styling, or grooming session at MR.KENT BARBERS.",
 };
 
 export const viewport: Viewport = {

@@ -124,7 +124,7 @@ export default async function DashboardPage() {
                 <div className="flex items-center gap-4">
                   {/* Small avatar circle with user's initials */}
                   <div className={`w-10 h-10 rounded-full text-sm font-bold flex items-center justify-center shrink-0 border ${
-                    booking.booking_type === "emergency"
+                    booking.booking_type?.startsWith("emergency")
                       ? "bg-red-50 text-red-600 border-red-200"
                       : "bg-surface text-text-primary border-border-light/60"
                   }`}>
@@ -135,19 +135,40 @@ export default async function DashboardPage() {
                       <h4 className="font-bold text-sm text-text-primary">
                         {booking.customer_name}
                       </h4>
-                      {booking.booking_type === "emergency" && (
+                      {booking.booking_type?.startsWith("emergency") && (
                         <span className="inline-flex items-center gap-0.5 rounded-full bg-red-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-700 border border-red-100">
                           <span className="w-1 h-1 rounded-full bg-red-600 animate-pulse" />
                           Emergency
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-text-secondary mt-0.5 flex items-center gap-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94L6.73 20.18a2.12 2.12 0 01-3-3l6.77-6.77a6 6 0 017.94-7.94l-3.74 3.73z" />
-                      </svg>
-                      {booking.service_name} ({booking.duration} min)
-                    </p>
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                      <p className="text-xs text-text-secondary flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94L6.73 20.18a2.12 2.12 0 01-3-3l6.77-6.77a6 6 0 017.94-7.94l-3.74 3.73z" />
+                        </svg>
+                        {booking.service_name} ({booking.duration} min)
+                      </p>
+                      {(() => {
+                        const type = booking.booking_type || "normal";
+                        const isEmergency = type.startsWith("emergency");
+                        const rawTier = isEmergency ? type.replace("emergency_", "") : type;
+                        const tier = rawTier === "normal" ? "normal" : rawTier;
+                        const tierDisplay = tier.charAt(0).toUpperCase() + tier.slice(1);
+                        
+                        return (
+                          <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider border shrink-0 ${
+                            tier === "premium"
+                              ? "bg-amber-50 text-amber-700 border-amber-200"
+                              : tier === "creative"
+                                ? "bg-purple-50 text-purple-700 border-purple-200"
+                                : "bg-slate-50 text-slate-700 border-slate-200"
+                          }`}>
+                            {tierDisplay}
+                          </span>
+                        );
+                      })()}
+                    </div>
                   </div>
                 </div>
 

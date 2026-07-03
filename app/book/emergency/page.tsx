@@ -7,6 +7,7 @@ type Service = {
   id: string;
   name: string;
   duration: number;
+  price: number;
 };
 
 type Slot = {
@@ -17,6 +18,53 @@ type Slot = {
   available: boolean;
   isPast?: boolean;
   isFullyBooked?: boolean;
+};
+
+const TIERED_SERVICES_CONFIG: Record<string, {
+  name: string;
+  tiers: {
+    key: string;
+    name: string;
+    price: number;
+    description: string;
+  }[];
+}> = {
+  "haircut": {
+    name: "Haircut",
+    tiers: [
+      { key: "normal", name: "Normal", price: 170, description: "Standard haircut. No other complimentary services." },
+      { key: "creative", name: "Creative", price: 200, description: "Customize your haircut according to your preference + complimentary hair wash." },
+      { key: "premium", name: "Premium", price: 250, description: "Premium Haircut + Branded Shampoo & Conditioner Wash + Hair Styling setting (gel, wax, powder)." }
+    ]
+  },
+  "shaving": {
+    name: "Shaving",
+    tiers: [
+      { key: "normal", name: "Normal", price: 100, description: "Standard shaving. No other complimentary services." },
+      { key: "premium", name: "Premium", price: 150, description: "Blade/Trimmer + branded facewash with steam." }
+    ]
+  },
+  "beard setting": {
+    name: "Beard Setting",
+    tiers: [
+      { key: "normal", name: "Normal", price: 100, description: "Standard beard setting. No other complimentary services." },
+      { key: "premium", name: "Premium", price: 150, description: "Beard styling setting + Face Scrub with steam." }
+    ]
+  },
+  "haircut + beard setting": {
+    name: "Haircut + Beard Setting",
+    tiers: [
+      { key: "normal", name: "Normal", price: 250, description: "Standard Haircut + Beard Setting combo." },
+      { key: "premium", name: "Premium", price: 350, description: "Premium combo: Haircut + hair wash with branded conditioner & shampoo + hair setting (gel, powder, wax) + beard styling + facewash with steam." }
+    ]
+  },
+  "haircut + shave": {
+    name: "Haircut + Shave",
+    tiers: [
+      { key: "normal", name: "Normal", price: 250, description: "Standard Haircut + Shaving combo." },
+      { key: "premium", name: "Premium", price: 350, description: "Premium combo: Haircut + hair wash with branded conditioner & shampoo + hair setting (gel, powder, wax) + shaving + facewash with steam." }
+    ]
+  }
 };
 
 export default function EmergencyBookingPage() {
@@ -55,6 +103,26 @@ export default function EmergencyBookingPage() {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [showTierModal, setShowTierModal] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<string>("normal");
+
+  function onClickBook() {
+    if (!selectedService || !selectedDate || !selectedSlot || !customerName || !phone) {
+      setMessage("Please fill all details and select date/time/service");
+      return;
+    }
+
+    const service = services.find((s) => s.id === selectedService);
+    if (!service) return;
+
+    const cleanName = service.name.toLowerCase().trim();
+    if (TIERED_SERVICES_CONFIG[cleanName]) {
+      setSelectedTier(TIERED_SERVICES_CONFIG[cleanName].tiers[0].key);
+      setShowTierModal(true);
+    } else {
+      submitBooking("normal");
+    }
+  }
 
   // ─── Existing Effects (PRESERVED) ────────────────────────────
   useEffect(() => {
@@ -100,7 +168,7 @@ export default function EmergencyBookingPage() {
     }
   }
 
-  async function handleBooking() {
+  async function submitBooking(tier: string) {
     try {
       setLoading(true);
 
@@ -128,7 +196,7 @@ export default function EmergencyBookingPage() {
           duration: service.duration,
           service_id: service.id,
           service_name: service.name,
-          booking_type: "emergency", // Specify emergency booking type
+          booking_type: "emergency_" + tier, // Specify emergency booking type with selected tier
         }),
       });
 
@@ -140,7 +208,7 @@ export default function EmergencyBookingPage() {
 
       setMessage("Booking Confirmed");
 
-      window.location.href = `/booksuccess?reference=${result.data[0].booking_reference}&customer=${customerName}&service=${service.name}&date=${selectedDate}&time=${slot.time}-${slot.endTime}&type=emergency`;
+      window.location.href = `/booksuccess?reference=${result.data[0].booking_reference}&customer=${customerName}&service=${service.name}&date=${selectedDate}&time=${slot.time}-${slot.endTime}&type=emergency_${tier}`;
 
       setCustomerName("");
       setPhone("");
@@ -548,7 +616,7 @@ export default function EmergencyBookingPage() {
             <div className="hidden md:block pt-2">
               <button
                 type="button"
-                onClick={handleBooking}
+                onClick={onClickBook}
                 disabled={loading || !selectedService || !selectedDate || !selectedSlot || !customerName || !phone}
                 className="tap-effect w-full rounded-xl bg-red-600 py-4 text-sm font-bold text-white shadow-md hover:shadow-lg transition-all active:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-700 flex items-center justify-center gap-2 cursor-pointer"
               >
@@ -574,7 +642,7 @@ export default function EmergencyBookingPage() {
         <div className="px-5 pt-4 pb-3">
           <button
             type="button"
-            onClick={handleBooking}
+            onClick={onClickBook}
             disabled={loading}
             className="tap-effect w-full rounded-2xl bg-red-600 py-4 text-base font-bold text-white shadow-lg transition-all active:shadow-md disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
           >
@@ -592,6 +660,133 @@ export default function EmergencyBookingPage() {
           </button>
         </div>
       </div>
+
+      {/* Tier Selection Modal */}
+      {showTierModal && (() => {
+        const service = services.find((s) => s.id === selectedService);
+        if (!service) return null;
+        
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-3xl max-w-xl w-full p-5 shadow-2xl border border-border-light/30">
+              <div className="text-center mb-3">
+                <h2 className="text-xl font-black text-red-600 tracking-tight">Select Emergency Service Type</h2>
+                <p className="text-sm text-text-secondary mt-0.5">
+                  Customize your emergency <span className="font-bold text-red-600">{service.name}</span> experience
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                {(() => {
+                  const cleanName = service.name.toLowerCase().trim();
+                  const config = TIERED_SERVICES_CONFIG[cleanName];
+                  if (!config) return null;
+                  
+                  return config.tiers.map((tier) => {
+                    const isSelected = selectedTier === tier.key;
+                    const isPremium = tier.key === "premium";
+                    const isCreative = tier.key === "creative";
+                    
+                    return (
+                      <button
+                        key={tier.key}
+                        type="button"
+                        onClick={() => setSelectedTier(tier.key)}
+                        className={`w-full text-left p-3 px-4 rounded-xl border-2 transition-all flex items-center justify-between group tap-effect ${
+                          isSelected
+                            ? isPremium
+                              ? "border-amber-500 bg-amber-50/10"
+                              : isCreative
+                                ? "border-purple-500 bg-purple-50/10"
+                                : "border-red-600 bg-red-50/20"
+                            : "border-border-light/40 hover:border-text-muted/40 hover:bg-surface"
+                        }`}
+                      >
+                        <div className="space-y-0.5 pr-4">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-extrabold ${
+                              isPremium ? "text-amber-950" : isCreative ? "text-purple-950" : "text-red-950"
+                            }`}>
+                              {tier.name}
+                            </span>
+                            {isPremium && (
+                              <span className="bg-amber-100 text-amber-800 text-[9px] font-black uppercase tracking-wider px-1.5 py-0.25 rounded-full">
+                                Best Value
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-text-secondary leading-normal">{tier.description}</p>
+                        </div>
+                        <div className="flex flex-col items-end shrink-0 gap-1 ml-4">
+                          <span className="text-base font-black text-text-primary">
+                            ₹{tier.price}
+                          </span>
+                          <div className={`h-4.5 w-4.5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                            isSelected
+                              ? isPremium
+                                ? "border-amber-500 bg-amber-500 text-white"
+                                : isCreative
+                                  ? "border-purple-500 bg-purple-500 text-white"
+                                  : "border-red-600 bg-red-600 text-white"
+                              : "border-text-muted/30"
+                          }`}>
+                            {isSelected && (
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  });
+                })()}
+              </div>
+
+              {/* Special Premium Offer Notice Banner */}
+              <div className={`mt-3 p-2.5 px-3.5 rounded-xl border transition-all duration-300 ${
+                selectedTier === "premium"
+                  ? "bg-amber-50/80 border-amber-200 text-amber-900 shadow-sm"
+                  : "bg-surface border-border-light text-text-secondary"
+              }`}>
+                <div className="flex gap-2.5 items-start">
+                  <span className={`text-base ${selectedTier === "premium" ? "text-amber-600" : "text-text-muted"}`}>
+                    💡
+                  </span>
+                  <div>
+                    <h4 className="text-[10px] font-black uppercase tracking-wider">Offer Notice</h4>
+                    <p className="text-[10px] mt-0.5 leading-normal">
+                      You can avail offers on other services <strong className="font-extrabold underline">only for Premium bookings</strong>. Additionally, Premium bookings unlock complimentary addon services.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Action Buttons */}
+              <div className="mt-4 flex gap-2.5 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowTierModal(false)}
+                  className="px-4 py-2 bg-surface hover:bg-border-light text-text-secondary text-xs font-bold rounded-xl transition-colors cursor-pointer border border-border-light"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowTierModal(false);
+                    submitBooking(selectedTier);
+                  }}
+                  disabled={!selectedTier}
+                  className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
+                >
+                  Confirm & Book
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

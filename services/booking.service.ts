@@ -83,8 +83,7 @@ export async function getDashboardStats() {
   const todaysEmergencyBookings =
     todaysBookings.filter(
       (booking) =>
-        booking.booking_type ===
-        "emergency"
+        booking.booking_type?.startsWith("emergency")
     );
 
   const completedBookings =

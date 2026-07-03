@@ -58,8 +58,8 @@ export default function AdminSidebar() {
             MK
           </span>
           <div>
-            <h2 className="text-sm font-black tracking-wider uppercase text-accent leading-none">
-              Salon Admin
+            <h2 className="text-xs font-black tracking-wider uppercase text-accent leading-none">
+              MR.KENT BARBERS Admin
             </h2>
             <p className="text-[8px] text-text-muted mt-0.5 font-bold uppercase tracking-wider leading-none">Management</p>
           </div>
@@ -95,8 +95,8 @@ export default function AdminSidebar() {
         <div className="space-y-8">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-black tracking-wider uppercase text-accent">
-                Salon Admin
+              <h2 className="text-lg font-black tracking-wider uppercase text-accent">
+                MR.KENT BARBERS
               </h2>
               <p className="text-[10px] text-text-muted mt-1 font-semibold uppercase tracking-wider">Management Portal</p>
             </div>
@@ -143,8 +143,8 @@ export default function AdminSidebar() {
       <aside className="hidden md:flex w-64 h-screen sticky top-0 bg-black text-white p-6 flex-col justify-between shadow-xl shrink-0">
         <div className="space-y-8">
           <div>
-            <h2 className="text-xl font-black tracking-wider uppercase text-accent">
-              Salon Admin
+            <h2 className="text-lg font-black tracking-wider uppercase text-accent">
+              MR.KENT BARBERS
             </h2>
             <p className="text-[10px] text-text-muted mt-1 font-semibold uppercase tracking-wider">Management Portal</p>
           </div>

@@ -15,12 +15,14 @@ export default function Header() {
     <header className="hidden md:block border-b border-white/70 bg-white/90 sticky top-0 z-50 shadow-sm backdrop-blur-xl">
       <div className="max-w-[1180px] mx-auto px-6 h-[68px] flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <span className="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-white font-extrabold text-sm shadow-[0_12px_24px_rgba(232,100,44,0.25)]">
-            MK
-          </span>
+          <img 
+            src="/logo.jpg" 
+            alt="MR.KENT BARBERS Logo" 
+            className="w-9 h-9 rounded-full object-cover shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
+          />
           <span>
             <span className="block font-extrabold text-base tracking-tight text-text-primary">
-              Mr. Kent&apos;s Salon
+              MR.KENT BARBERS
             </span>
             <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-text-muted">
               Premium Grooming

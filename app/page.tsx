@@ -4,31 +4,34 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const categories = ['Hairdressing', 'Hair Color', 'Oil Treatment', 'Color'];
-
 const barbers = [
   {
     name: 'David Marcomin',
     price: 49.32,
-    image: '/images/barber-david.png',
+    image: '/images/barber-david-v2.jpg',
   },
   {
     name: 'Richard Anderson',
     price: 28.48,
-    image: '/images/barber-richard.png',
+    image: '/images/barber-richard-v2.jpg',
   },
 ];
 
-const filters = ['All', 'Cuts', 'Colors', 'Shaves'];
+const celebrityHighlights = [
+  { id: 1, image: '/images/celeb-1.jpg' },
+  { id: 2, image: '/images/celeb-2.jpg' },
+  { id: 3, image: '/images/celeb-3.jpg' },
+  { id: 4, image: '/images/celeb-4.jpg' },
+  { id: 5, image: '/images/celeb-5.jpg' },
+];
 
-const highlightsData = [
+const signatureStyles = [
   {
     id: 1,
     title: 'Classic Fade & Beard Sculpt',
     category: 'Cuts',
     image: '/images/highlight-cut.png',
     description: 'Sharp drop fade paired with a clean, hot-towel beard sculpt and lining.',
-    stylist: 'Richard Anderson',
     duration: '45 min',
   },
   {
@@ -37,7 +40,6 @@ const highlightsData = [
     category: 'Colors',
     image: '/images/highlight-color.png',
     description: 'Seamless hand-painted warm highlights finished with modern blowout waves.',
-    stylist: 'David Marcomin',
     duration: '120 min',
   },
   {
@@ -46,14 +48,11 @@ const highlightsData = [
     category: 'Shaves',
     image: '/images/highlight-shave.png',
     description: 'Relaxing straight-razor shave with nourishing oils, steam, and cold compress.',
-    stylist: 'Richard Anderson',
     duration: '30 min',
   },
 ];
 
 export default function HomePage() {
-  const [activeCategory, setActiveCategory] = useState(0);
-  const [activeFilter, setActiveFilter] = useState('All');
   const [formState, setFormState] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
@@ -127,12 +126,10 @@ export default function HomePage() {
     }, 3000);
   };
 
-  const filteredHighlights = activeFilter === 'All'
-    ? highlightsData
-    : highlightsData.filter(item => item.category === activeFilter);
+
 
   return (
-    <div className="mobile-container bg-white md:bg-transparent min-h-dvh md:min-h-0 overflow-y-auto pb-24 md:pb-16 md:px-6 lg:px-0 space-y-16 md:space-y-16">
+    <div className="mobile-container bg-white md:bg-transparent min-h-dvh md:min-h-0 overflow-y-auto pb-24 md:pb-16 md:px-6 max-w-[1180px] mx-auto w-full space-y-16 md:space-y-16">
 
       {/* ── SECTION 1: HOME ── */}
       <section id="home" className="space-y-6 md:space-y-8 scroll-mt-20">
@@ -141,7 +138,7 @@ export default function HomePage() {
           <div>
             <p className="text-xs text-text-secondary">Good Morning 👋</p>
             <h1 className="text-lg font-bold text-text-primary">
-              Mr. Kent&apos;s Salon
+              MR.KENT BARBERS
             </h1>
           </div>
 
@@ -164,9 +161,11 @@ export default function HomePage() {
               <span className="absolute top-2 right-2 w-2 h-2 bg-accent rounded-full" />
             </button>
 
-            <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white text-sm font-semibold">
-              MK
-            </div>
+            <img 
+              src="/logo.jpg" 
+              alt="MR.KENT BARBERS Logo" 
+              className="w-10 h-10 rounded-full object-cover shadow-[0_2px_8px_rgba(0,0,0,0.15)]"
+            />
           </div>
         </div>
 
@@ -235,7 +234,7 @@ export default function HomePage() {
               {[
                 ['4.9', 'Average rating'],
                 ['12+', 'Expert stylists'],
-                ['2015', 'Established'],
+                ['2016', 'Established'],
               ].map(([value, label]) => (
                 <div key={label} className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md">
                   <p className="text-xl font-extrabold text-white">{value}</p>
@@ -246,107 +245,31 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* ── Category Pills ── */}
-        <div className="animate-slide-up animate-delay-300 md:relative md:z-10">
-          <div className="md:bg-white md:border md:border-border-light/70 md:shadow-[0_16px_38px_rgba(26,26,46,0.07)] md:rounded-3xl md:px-6 md:py-5">
-            <div className="px-5 md:px-0 md:flex md:items-end md:justify-between">
-              <div>
-                <p className="hidden md:block text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Explore services</p>
-                <h3 className="text-base font-bold text-text-primary md:text-xl md:mt-1">
-                  Category
-                </h3>
-              </div>
-              <p className="hidden md:block max-w-sm text-sm leading-5 text-text-secondary text-justify">
-                Choose a focus and see the stylists, signature work, and booking options that match your look.
-              </p>
-            </div>
-          <div className="mt-3 md:mt-4 px-5 md:px-0 overflow-x-auto hide-scrollbar flex gap-3">
-            {categories.map((cat, i) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(i)}
-                className={`tap-effect shrink-0 px-5 md:px-5 py-2.5 md:py-2.5 rounded-full text-sm font-semibold transition-all ${
-                  activeCategory === i
-                    ? 'bg-accent text-white shadow-[0_12px_24px_rgba(232,100,44,0.22)]'
-                    : 'bg-white text-text-primary border border-border-light hover:border-accent/40 hover:text-accent'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-          </div>
-        </div>
-
-        {/* ── Hairdressing Section ── */}
+        {/* ── Salon Interior Gallery ── */}
         <div className="scroll-animate">
-          <div className="px-5 md:px-0 flex items-center justify-between">
+          <div className="px-5 md:px-0 flex items-center justify-between mb-4">
             <div>
-              <p className="hidden md:block text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Featured stylists</p>
+              <p className="hidden md:block text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Inside MR.KENT BARBERS</p>
               <h3 className="text-base font-bold text-text-primary md:text-2xl md:mt-1">
-                Hairdressing
+                Our Salon Gallery
               </h3>
             </div>
-            <Link href="/book" className="text-sm font-medium text-accent hover:underline">
-              See All
-            </Link>
           </div>
-
-          <div className="mt-3 md:mt-5 px-5 md:px-0 flex md:grid md:grid-cols-2 gap-6 md:gap-6 overflow-x-auto md:overflow-visible hide-scrollbar pb-6 md:pb-0">
+          <div className="mt-2 px-5 md:px-0 flex md:grid md:grid-cols-2 gap-6 md:gap-6 overflow-x-auto md:overflow-visible hide-scrollbar pb-4 md:pb-0">
             {barbers.map((barber, idx) => (
-              <Link
-                key={barber.name}
-                href="/book"
-                className={`tap-effect group shrink-0 w-[170px] md:w-full rounded-xl md:rounded-3xl shadow-md hover:shadow-lg md:shadow-[0_14px_36px_rgba(26,26,46,0.08)] md:hover:shadow-[0_20px_48px_rgba(26,26,46,0.12)] bg-white overflow-hidden border border-border-light/40 transition-all scroll-animate delay-${(idx + 1) * 150}`}
+              <div
+                key={idx}
+                className="group shrink-0 w-[260px] md:w-full rounded-2xl md:rounded-3xl shadow-md md:shadow-[0_14px_36px_rgba(26,26,46,0.06)] bg-white overflow-hidden border border-border-light/40 transition-all"
               >
-                <div className="relative w-full h-[180px] md:h-[340px]">
+                <div className="relative w-full h-[200px] md:h-[360px]">
                   <Image
                     src={barber.image}
-                    alt={barber.name}
+                    alt="Salon Interior"
                     fill
-                    className="object-cover rounded-t-xl md:rounded-t-3xl md:transition-transform md:duration-700 md:group-hover:scale-105"
+                    className="object-cover md:transition-transform md:duration-700 md:group-hover:scale-105"
                   />
-                  <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-black/70 via-black/5 to-transparent opacity-90" />
-                  <button
-                    className="absolute top-2 right-2 md:top-4 md:right-4 w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/80 flex items-center justify-center hover:bg-white transition-colors"
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-4 h-4 text-text-secondary hover:text-red-500 transition-colors"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                      />
-                    </svg>
-                  </button>
-                  <div className="hidden md:block absolute left-5 right-5 bottom-5 text-white">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/60">Master Stylist</p>
-                    <p className="mt-1 text-xl font-extrabold">{barber.name}</p>
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="rounded-full bg-white/15 px-3.5 py-2 text-xs font-bold backdrop-blur-md">
-                        From $ {barber.price.toFixed(2)}
-                      </span>
-                      <span className="text-xs font-bold text-white/85">Book Style</span>
-                    </div>
-                  </div>
                 </div>
-
-                <div className="p-3 md:hidden">
-                  <p className="text-sm font-semibold text-text-primary truncate">
-                    {barber.name}
-                  </p>
-                  <p className="text-sm font-bold text-accent mt-0.5">
-                    $ {barber.price.toFixed(2)}
-                  </p>
-                </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
@@ -363,7 +286,7 @@ export default function HomePage() {
                 Crafting Styles, Building Confidence
               </h2>
               <p className="text-xs md:text-sm text-text-secondary leading-relaxed md:max-w-md text-justify">
-                At Mr. Kent&apos;s Salon, we believe that grooming is more than just a haircut—it&apos;s an experience. Established in 2015, we have been dedicated to providing top-tier cuts, styling, and premium shaving services in a warm, sophisticated environment.
+                At MR.KENT BARBERS, we believe that grooming is more than just a haircut—it&apos;s an experience. Established in 2015, we have been dedicated to providing top-tier cuts, styling, and premium shaving services in a warm, sophisticated environment.
               </p>
 
               {/* Values checklists */}
@@ -406,52 +329,30 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 text-white">
                 <p className="text-[10px] font-bold tracking-wider uppercase opacity-75">Established</p>
-                <p className="text-lg md:text-2xl font-extrabold">Since 2015</p>
+                <p className="text-lg md:text-2xl font-extrabold">Since 2016</p>
               </div>
-              <div className="hidden md:block absolute right-6 top-6 rounded-2xl border border-white/20 bg-white/15 px-4 py-3 text-white backdrop-blur-md">
-                <p className="text-xl font-extrabold">20%</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/70">New guest offer</p>
-              </div>
+
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── SECTION 3: HIGHLIGHTS ── */}
-      <section id="highlights" className="scroll-mt-20 space-y-5">
-        <div className="px-5 md:px-0 md:flex md:items-end md:justify-between scroll-animate">
-          <div>
-            <p className="hidden md:block text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Recent work</p>
-            <h1 className="text-2xl font-bold text-text-primary md:text-3xl md:mt-1">Our Highlights</h1>
-          </div>
-          <p className="text-xs text-text-secondary mt-1 md:text-sm md:max-w-md md:leading-5 text-justify">
-            Explore our latest transformations and signature styles
+      {/* ── SECTION 3: SIGNATURE STYLES ── */}
+      <section id="signature-styles" className="scroll-mt-20 space-y-5">
+        <div className="px-5 md:px-0 space-y-1.5 scroll-animate">
+          <p className="hidden md:block text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Our Creations</p>
+          <h1 className="text-2xl font-bold text-text-primary md:text-3xl">Signature Styles</h1>
+          <p className="text-xs text-text-secondary md:text-sm max-w-2xl leading-relaxed text-justify">
+            Explore our curated selection of signature haircuts and grooming designs crafted by our master stylists.
           </p>
-        </div>
-
-        {/* Filters */}
-        <div className="px-5 md:px-0 overflow-x-auto hide-scrollbar flex gap-3">
-          {filters.map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setActiveFilter(filter)}
-              className={`tap-effect shrink-0 px-5 md:px-4 py-2.5 md:py-2 rounded-full text-sm font-medium transition-colors ${
-                activeFilter === filter
-                  ? 'bg-accent text-white shadow-sm'
-                  : 'bg-white text-text-primary border border-border-light'
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
         </div>
 
         {/* Gallery Grid */}
         <div className="px-5 md:px-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-5">
-          {filteredHighlights.map((item, index) => (
+          {signatureStyles.map((item, index) => (
             <div
               key={item.id}
-              className={`group rounded-2xl md:rounded-[24px] shadow-md md:shadow-[0_16px_42px_rgba(26,26,46,0.08)] md:hover:shadow-[0_24px_60px_rgba(26,26,46,0.13)] bg-white border border-border-light/50 overflow-hidden w-full transition-all scroll-animate delay-${(index + 1) * 150}`}
+              className={`group rounded-2xl md:rounded-[24px] shadow-md md:shadow-[0_16px_42px_rgba(26,26,46,0.08)] bg-white border border-border-light/50 overflow-hidden w-full transition-all scroll-animate delay-${(index + 1) * 150}`}
             >
               <div className="relative w-full h-[220px] md:h-[260px]">
                 <Image
@@ -479,19 +380,10 @@ export default function HomePage() {
                   {item.description}
                 </p>
 
-                <div className="mt-4 pt-4 border-t border-border-light flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-[10px] font-bold text-accent">
-                      {item.stylist.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <span className="text-[11px] font-medium text-text-secondary">
-                      By {item.stylist}
-                    </span>
-                  </div>
-
+                <div className="mt-4 pt-4 border-t border-border-light">
                   <Link
                     href="/book"
-                    className="tap-effect bg-accent/5 hover:bg-accent text-accent hover:text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all"
+                    className="tap-effect block text-center bg-accent/5 hover:bg-accent text-accent hover:text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all w-full"
                   >
                     Book Style
                   </Link>
@@ -502,7 +394,141 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── SECTION 4: CONTACT ── */}
+      {/* ── SECTION 4: CELEBRITY HIGHLIGHTS ── */}
+      <section id="highlights" className="scroll-mt-20 space-y-5">
+        <div className="px-5 md:px-0 space-y-1.5 scroll-animate">
+          <p className="hidden md:block text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Spotted at MR.KENT BARBERS</p>
+          <h1 className="text-2xl font-bold text-text-primary md:text-3xl">Celebrity Highlights</h1>
+          <p className="text-xs text-text-secondary md:text-sm max-w-2xl leading-relaxed text-justify">
+            We are honored to style some of the most prominent personalities. See our celebrity guests alongside our founder.
+          </p>
+        </div>
+
+        {/* Gallery Grid */}
+        <div className="px-5 md:px-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-3.5">
+          {celebrityHighlights.map((item, index) => (
+            <div
+              key={item.id}
+              className={`group rounded-xl md:rounded-[18px] shadow-sm md:shadow-[0_10px_28px_rgba(26,26,46,0.06)] bg-white border border-border-light/40 overflow-hidden w-full transition-all scroll-animate delay-${(index + 1) * 150}`}
+            >
+              <div className="relative w-full h-[180px] md:h-[220px]">
+                <Image
+                  src={item.image}
+                  alt="Celebrity Guest"
+                  fill
+                  className="object-cover md:transition-transform md:duration-700 md:group-hover:scale-105"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── SECTION 5: GROOM WORKS ── */}
+      <section id="groom-works" className="scroll-mt-20 space-y-5">
+        <div className="px-5 md:px-0 space-y-1.5 scroll-animate">
+          <p className="hidden md:block text-[11px] font-bold uppercase tracking-[0.16em] text-accent">Portfolio</p>
+          <h1 className="text-2xl font-bold text-text-primary md:text-3xl">Groom Makeover Works</h1>
+          <p className="text-xs text-text-secondary md:text-sm max-w-2xl leading-relaxed text-justify">
+            Explore our curated gallery of wedding transformations. Click the feed to follow our makeover page on Instagram.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-8 md:gap-10 px-5 md:px-0 items-center">
+          {/* Left Column: Interactive Instagram Feed Mockup Card */}
+          <a
+            href="https://www.instagram.com/the.men.makeover?igsh=Zml5MTRmemliNGk4"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group block relative w-full aspect-[4/5] md:aspect-[1.3/1] rounded-3xl overflow-hidden shadow-lg md:shadow-[0_16px_48px_rgba(26,26,46,0.08)] bg-white border border-border-light/40 transition-all scroll-animate delay-150"
+          >
+            <Image
+              src="/images/groom-works.jpg"
+              alt="Groom Makeovers Instagram Feed"
+              fill
+              unoptimized
+              className="object-cover contrast-[1.03] saturate-[1.03] md:transition-transform md:duration-750 md:group-hover:scale-105"
+            />
+            {/* Dark glassmorphic hover overlay */}
+            <div className="absolute inset-0 bg-black/40 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center text-white p-6 backdrop-blur-[2px]">
+              <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mb-3 shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+                {/* SVG Instagram logo */}
+                <svg
+                  className="w-7 h-7 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
+              </div>
+              <p className="text-base font-extrabold tracking-tight">@the.men.makeover</p>
+              <p className="text-[11px] font-semibold text-white/80 uppercase tracking-wider mt-1">View Instagram Feed</p>
+            </div>
+          </a>
+
+          {/* Right Column: Styled Description & Bullet Points */}
+          <div className="space-y-6 scroll-animate delay-300">
+            <div className="space-y-3">
+              <span className="text-accent font-bold tracking-widest text-[10px] uppercase">Groom Styling Specialist</span>
+              <h2 className="text-xl md:text-2xl font-black text-text-primary leading-tight">
+                Traditional & Modern Groom Transformations
+              </h2>
+              <p className="text-xs md:text-sm text-text-secondary leading-relaxed text-justify">
+                Our specialized makeover division guarantees you look your absolute best for your special day. From skin prepping to precision beard line-ups and custom wedding hair settings, we customize every detail.
+              </p>
+            </div>
+
+            {/* Core offerings */}
+            <div className="space-y-3">
+              {[
+                "Custom Wedding Hair Setting & Styling",
+                "Advanced Skin Prep & Glow Therapy",
+                "Precision Beard Detailing & Grooming",
+                "Dedicated On-Site Groom Makeover Assistant"
+              ].map((text) => (
+                <div key={text} className="flex items-center gap-3">
+                  <span className="w-5 h-5 rounded-full bg-accent/15 flex items-center justify-center text-accent shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </span>
+                  <span className="text-xs font-semibold text-text-primary">{text}</span>
+                </div>
+              ))}
+            </div>
+
+            <a
+              href="https://www.instagram.com/the.men.makeover?igsh=Zml5MTRmemliNGk4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 bg-[#E1306C] hover:bg-[#d8225e] text-white text-xs font-extrabold px-6 py-3 rounded-xl transition-all shadow-[0_10px_20px_rgba(225,48,108,0.2)] hover:shadow-[0_12px_24px_rgba(225,48,108,0.35)]"
+            >
+              <svg
+                className="w-4 h-4 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+              </svg>
+              Follow Our Groom Works
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 6: CONTACT ── */}
       <section id="contact" className="scroll-mt-20 space-y-5">
         <div className="px-5 md:px-0 scroll-animate">
           <h1 className="text-2xl font-bold text-text-primary md:text-3xl">Contact Us</h1>
@@ -526,7 +552,7 @@ export default function HomePage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Call Us</p>
-                    <p className="text-xs font-semibold text-text-primary mt-0.5">+1 (555) 123-4567</p>
+                    <p className="text-xs font-semibold text-text-primary mt-0.5">+91 7356765254</p>
                   </div>
                 </div>
 
@@ -539,7 +565,7 @@ export default function HomePage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Email Us</p>
-                    <p className="text-xs font-semibold text-text-primary mt-0.5">hello@mrkentsalon.com</p>
+                    <p className="text-xs font-semibold text-text-primary mt-0.5">mrkentbarbers@gmail.com</p>
                   </div>
                 </div>
 

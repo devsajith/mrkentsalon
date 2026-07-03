@@ -108,7 +108,8 @@ export async function POST(
     const settings =
       await getSettings();
 
-    const currentBookingType = booking_type === "emergency" ? "emergency" : "normal";
+    const isEmergency = typeof booking_type === "string" && booking_type.startsWith("emergency");
+    const currentBookingType = isEmergency ? "emergency" : "normal";
     const capacity =
       currentBookingType === "emergency"
         ? Number(settings.walkin_capacity || 0)
@@ -138,8 +139,8 @@ export async function POST(
     bookings.forEach(
       (booking: { slot_time: string; end_time: string; booking_type?: string }) => {
         const isTargetType = currentBookingType === "emergency"
-          ? booking.booking_type === "emergency"
-          : booking.booking_type !== "emergency";
+          ? booking.booking_type?.startsWith("emergency")
+          : !booking.booking_type?.startsWith("emergency");
 
         if (!isTargetType) return;
 
@@ -201,7 +202,7 @@ export async function POST(
         status:
           "confirmed",
         booking_reference: bookingReference,
-        booking_type: currentBookingType,
+        booking_type: booking_type || currentBookingType,
 
       })
       .select();

@@ -60,8 +60,8 @@ export default function BookingTable({
             typeFilter === "all"
               ? true
               : typeFilter === "emergency"
-                ? booking.booking_type === "emergency"
-                : booking.booking_type !== "emergency";
+                ? booking.booking_type?.startsWith("emergency")
+                : !booking.booking_type?.startsWith("emergency");
 
           return (
             matchesSearch &&
@@ -194,7 +194,7 @@ export default function BookingTable({
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-full text-xs font-bold flex items-center justify-center shrink-0 border ${
-                          booking.booking_type === "emergency"
+                          booking.booking_type?.startsWith("emergency")
                             ? "bg-red-50 text-red-600 border-red-200"
                             : "bg-surface text-text-primary border-border-light/60"
                         }`}>
@@ -212,23 +212,40 @@ export default function BookingTable({
                     {/* Service */}
                     <td className="p-4">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-surface px-2.5 py-1 text-xs font-semibold text-text-primary border border-border-light/40">
-                        <span className={`w-1.5 h-1.5 rounded-full ${booking.booking_type === "emergency" ? "bg-red-600" : "bg-accent"}`} />
+                        <span className={`w-1.5 h-1.5 rounded-full ${booking.booking_type?.startsWith("emergency") ? "bg-red-600" : "bg-accent"}`} />
                         {booking.service_name}
                       </span>
                     </td>
 
                     {/* Booking Type */}
                     <td className="p-4">
-                      {booking.booking_type === "emergency" ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-red-700 border border-red-100">
-                          <span className="w-1 h-1 rounded-full bg-red-600 animate-pulse" />
-                          Emergency
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center rounded-full bg-slate-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-600 border border-slate-100">
-                          Normal
-                        </span>
-                      )}
+                      {(() => {
+                        const type = booking.booking_type || "normal";
+                        const isEmergency = type.startsWith("emergency");
+                        const rawTier = isEmergency ? type.replace("emergency_", "") : type;
+                        const tier = rawTier === "normal" ? "normal" : rawTier;
+                        const tierDisplay = tier.charAt(0).toUpperCase() + tier.slice(1);
+                        
+                        return (
+                          <div className="flex flex-col gap-1.5 items-start">
+                            {isEmergency && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-700 border border-red-100">
+                                <span className="w-1 h-1 rounded-full bg-red-600 animate-pulse" />
+                                Emergency
+                              </span>
+                            )}
+                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider border ${
+                              tier === "premium"
+                                ? "bg-amber-50 text-amber-700 border-amber-200"
+                                : tier === "creative"
+                                  ? "bg-purple-50 text-purple-700 border-purple-200"
+                                  : "bg-slate-50 text-slate-700 border-slate-200"
+                            }`}>
+                              {tierDisplay}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </td>
 
                     {/* Date & Time */}
@@ -236,7 +253,7 @@ export default function BookingTable({
                       <div className="font-bold text-sm text-text-primary">
                         {booking.booking_date}
                       </div>
-                      <div className={`text-xs font-semibold mt-0.5 ${booking.booking_type === "emergency" ? "text-red-600" : "text-accent"}`}>
+                      <div className={`text-xs font-semibold mt-0.5 ${booking.booking_type?.startsWith("emergency") ? "text-red-600" : "text-accent"}`}>
                         {booking.slot_time} - {booking.end_time}
                       </div>
                     </td>
