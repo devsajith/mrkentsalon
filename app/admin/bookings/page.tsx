@@ -35,8 +35,7 @@ export default async function BookingsPage() {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-
+      <div className="max-w-sm">
         {/* Today's Bookings card */}
         <div className="bg-white rounded-2xl border border-border-light shadow-sm p-5 hover:shadow-md transition-all relative overflow-hidden group">
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-accent" />
@@ -56,27 +55,6 @@ export default async function BookingsPage() {
             </div>
           </div>
         </div>
-
-        {/* Upcoming card */}
-        <div className="bg-white rounded-2xl border border-border-light shadow-sm p-5 hover:shadow-md transition-all relative overflow-hidden group">
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-blue-500" />
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider">
-                Upcoming Confirmed
-              </h3>
-              <p className="text-3xl font-black text-text-primary mt-2">
-                {upcomingBookings}
-              </p>
-            </div>
-            <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
       </div>
 
       <BookingTable bookings={bookings} />

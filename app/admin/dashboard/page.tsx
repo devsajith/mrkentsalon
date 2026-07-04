@@ -34,9 +34,8 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Stats Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
+      {/* Stats Cards Row */}
+      <div className="max-w-sm">
         {/* Today's Bookings Card */}
         <div className="bg-white rounded-2xl border border-border-light shadow-sm p-6 hover:shadow-md transition-all relative overflow-hidden group">
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-accent" />
@@ -61,47 +60,6 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
-
-        {/* Upcoming Card */}
-        <div className="bg-white rounded-2xl border border-border-light shadow-sm p-6 hover:shadow-md transition-all relative overflow-hidden group">
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-blue-500" />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-text-muted uppercase tracking-wider">
-                Upcoming Bookings
-              </p>
-              <h3 className="text-3xl font-black text-text-primary mt-2">
-                {stats.upcomingBookings}
-              </h3>
-            </div>
-            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* Completed Card */}
-        <div className="bg-white rounded-2xl border border-border-light shadow-sm p-6 hover:shadow-md transition-all relative overflow-hidden group">
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-emerald-500" />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-bold text-text-muted uppercase tracking-wider">
-                Completed Bookings
-              </p>
-              <h3 className="text-3xl font-black text-text-primary mt-2">
-                {stats.completedBookings}
-              </h3>
-            </div>
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
       </div>
 
       {/* Today's Schedule Section */}
@@ -186,14 +144,11 @@ export default async function DashboardPage() {
                 </div>
 
                 <div className="flex flex-col items-end gap-1">
-                  <span className="font-black text-sm text-text-primary flex items-center gap-1.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <span className="font-black text-xs md:text-sm text-text-primary flex items-center gap-1.5 whitespace-nowrap">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    {formatTime12h(booking.slot_time)}
-                  </span>
-                  <span className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
-                    ends at {formatTime12h(booking.end_time)}
+                    {formatTime12h(booking.slot_time)} - {formatTime12h(booking.end_time)}
                   </span>
                 </div>
               </div>

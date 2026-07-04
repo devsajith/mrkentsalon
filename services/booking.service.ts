@@ -11,12 +11,8 @@ export async function getBookings() {
 
       .select("*")
 
-      .order(
-        "created_at",
-        {
-          ascending: false,
-        }
-      );
+      .order("booking_date", { ascending: false })
+      .order("slot_time", { ascending: false });
 
   if (error) {
 
@@ -100,6 +96,14 @@ export async function getDashboardStats() {
         "confirmed"
     );
 
+  const nowIST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+  const currentTimeStr = `${String(nowIST.getHours()).padStart(2, "0")}:${String(nowIST.getMinutes()).padStart(2, "0")}`;
+
+  const upcomingTodaysBookings = todaysBookings.filter((booking) => {
+    const slotTime = booking.slot_time.substring(0, 5);
+    return slotTime >= currentTimeStr;
+  });
+
   return {
 
     todaysBookings:
@@ -115,11 +119,10 @@ export async function getDashboardStats() {
       upcomingBookings.length,
 
     todaySchedule:
-      todaysBookings.sort(
+      upcomingTodaysBookings.sort(
         (a, b) =>
-
-          a.slot_time.localeCompare(
-            b.slot_time
+          b.slot_time.localeCompare(
+            a.slot_time
           )
       ),
 

@@ -37,9 +37,6 @@ export default function BookingTable({
   const [search, setSearch] =
     useState("");
 
-  const [statusFilter, setStatusFilter] =
-    useState("all");
-
   const [typeFilter, setTypeFilter] =
     useState("all");
 
@@ -49,9 +46,8 @@ export default function BookingTable({
   const filteredBookings =
     useMemo(() => {
 
-      return bookings.filter(
+      const filtered = bookings.filter(
         (booking) => {
-
           const matchesSearch =
             booking.customer_name
               .toLowerCase()
@@ -62,12 +58,6 @@ export default function BookingTable({
               search
             );
 
-          const matchesStatus =
-            statusFilter === "all"
-              ? true
-              : booking.status ===
-              statusFilter;
-
           const matchesType =
             typeFilter === "all"
               ? true
@@ -77,16 +67,47 @@ export default function BookingTable({
 
           return (
             matchesSearch &&
-            matchesStatus &&
             matchesType
           );
         }
       );
 
+      const nowIST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+      const todayStr = nowIST.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+      const currentTimeStr = `${String(nowIST.getHours()).padStart(2, "0")}:${String(nowIST.getMinutes()).padStart(2, "0")}`;
+
+      const getIsUpcoming = (b: Booking) => {
+        if (b.booking_date > todayStr) return true;
+        if (b.booking_date === todayStr) {
+          const slotTime = b.slot_time.substring(0, 5);
+          return slotTime >= currentTimeStr;
+        }
+        return false;
+      };
+
+      return filtered.sort((a, b) => {
+        const aUpcoming = getIsUpcoming(a);
+        const bUpcoming = getIsUpcoming(b);
+
+        if (aUpcoming && !bUpcoming) return -1;
+        if (!aUpcoming && bUpcoming) return 1;
+
+        if (aUpcoming && bUpcoming) {
+          if (a.booking_date !== b.booking_date) {
+            return a.booking_date.localeCompare(b.booking_date);
+          }
+          return a.slot_time.localeCompare(b.slot_time);
+        }
+
+        if (a.booking_date !== b.booking_date) {
+          return b.booking_date.localeCompare(a.booking_date);
+        }
+        return b.slot_time.localeCompare(a.slot_time);
+      });
+
     }, [
       bookings,
       search,
-      statusFilter,
       typeFilter,
     ]);
 
@@ -155,24 +176,6 @@ export default function BookingTable({
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
             </svg>
           </div>
-
-          {/* Status Dropdown */}
-          <div className="relative w-full md:w-48 shrink-0">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full appearance-none bg-surface/50 border border-border-light/60 rounded-xl py-3 pl-4 pr-10 text-sm font-bold text-text-primary outline-none border-transparent focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all cursor-pointer"
-            >
-              <option value="all">All Statuses</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-            {/* Custom chevron */}
-            <svg xmlns="http://www.w3.org/2000/svg" className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
         </div>
       </div>
 
@@ -189,13 +192,12 @@ export default function BookingTable({
                 <th className="p-4 text-left text-[11px] font-bold text-text-muted uppercase tracking-wider">Date & Time</th>
                 <th className="p-4 text-left text-[11px] font-bold text-text-muted uppercase tracking-wider">Duration</th>
                 <th className="p-4 text-left text-[11px] font-bold text-text-muted uppercase tracking-wider">Status</th>
-                <th className="p-4 text-left text-[11px] font-bold text-text-muted uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-light/40">
               {filteredBookings.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-sm font-semibold text-text-muted">
+                  <td colSpan={7} className="p-8 text-center text-sm font-semibold text-text-muted">
                     No bookings found matching filters
                   </td>
                 </tr>
@@ -263,7 +265,10 @@ export default function BookingTable({
                     {/* Date & Time */}
                     <td className="p-4">
                       <div className="font-bold text-sm text-text-primary">
-                        {booking.booking_date}
+                        {(() => {
+                          const parts = booking.booking_date.split("-");
+                          return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : booking.booking_date;
+                        })()}
                       </div>
                       <div className={`text-xs font-semibold mt-0.5 ${booking.booking_type?.startsWith("emergency") ? "text-red-600" : "text-accent"}`}>
                         {formatTime12h(booking.slot_time)} - {formatTime12h(booking.end_time)}
@@ -275,50 +280,33 @@ export default function BookingTable({
                       {booking.duration} min
                     </td>
 
-                    {/* Status badge */}
+                    {/* Status */}
                     <td className="p-4">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider ring-1 ${
-                        booking.status === "confirmed"
-                          ? "bg-emerald-50 text-emerald-700 ring-emerald-600/10"
-                          : booking.status === "completed"
-                            ? "bg-blue-50 text-blue-700 ring-blue-600/10"
-                            : "bg-red-50 text-red-700 ring-red-600/10"
-                      }`}>
-                        {booking.status}
-                      </span>
-                    </td>
+                      {(() => {
+                        const nowIST = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+                        const todayStr = nowIST.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+                        const currentTimeStr = `${String(nowIST.getHours()).padStart(2, "0")}:${String(nowIST.getMinutes()).padStart(2, "0")}`;
+                        
+                        let isUpcoming = false;
+                        if (booking.booking_date > todayStr) {
+                          isUpcoming = true;
+                        } else if (booking.booking_date === todayStr) {
+                          const slotTime = booking.slot_time.substring(0, 5);
+                          if (slotTime >= currentTimeStr) {
+                            isUpcoming = true;
+                          }
+                        }
 
-                    {/* Action buttons */}
-                    <td className="p-4">
-                      {booking.status === "confirmed" ? (
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            disabled={loadingId === booking.id}
-                            onClick={() => handleStatus(booking.id, "completed")}
-                            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs px-3 py-1.5 rounded-lg shadow-sm font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1"
-                          >
-                            {loadingId === booking.id ? (
-                              <svg className="animate-spin h-3 w-3 text-white" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4} />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                              </svg>
-                            ) : null}
-                            Complete
-                          </button>
-
-                          <button
-                            type="button"
-                            disabled={loadingId === booking.id}
-                            onClick={() => handleStatus(booking.id, "cancelled")}
-                            className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs px-3 py-1.5 rounded-lg shadow-sm font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-xs font-semibold text-text-muted italic">No actions</span>
-                      )}
+                        return isUpcoming ? (
+                          <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-700 border border-emerald-200">
+                            Upcoming
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full bg-slate-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 border border-slate-200">
+                            Completed
+                          </span>
+                        );
+                      })()}
                     </td>
                   </tr>
                 ))

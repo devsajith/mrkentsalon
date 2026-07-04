@@ -15,6 +15,17 @@ export default async function BookingSuccess({
 }) {
   const params = await searchParams;
 
+  const formatDateDDMMYYYY = (dateStr: string) => {
+    if (!dateStr) return "";
+    const parts = dateStr.split("-");
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+  };
+
+  const formattedDate = formatDateDDMMYYYY(params.date);
+
   return (
     <main className="mobile-container min-h-dvh bg-white flex flex-col items-center justify-center px-6 py-4">
       {/* Success Animation Circle */}
@@ -48,16 +59,14 @@ export default async function BookingSuccess({
 
       {/* Details Card */}
       <div
-        className="w-full max-w-sm mt-4 rounded-xl p-4 animate-slide-up animate-delay-400"
-        style={{
-          background: "var(--surface)",
-          boxShadow: "var(--shadow-sm)",
-        }}
+        className="w-full max-w-sm mt-5 bg-surface/30 border border-border-light/60 rounded-2xl p-4.5 animate-scale-in animate-delay-400"
       >
         {/* Reference */}
         <div className="flex items-center justify-between pb-2.5 border-b border-border-light/60">
-          <span className="text-xs font-semibold text-text-muted">Reference</span>
-          <span className="text-xs font-extrabold text-text-primary">{params.reference}</span>
+          <span className="text-xs font-semibold text-text-muted">Booking Reference</span>
+          <span className="text-xs font-black text-text-primary uppercase font-mono bg-surface px-2 py-0.5 rounded border border-border-light/50 tracking-wider">
+            {params.reference}
+          </span>
         </div>
 
         {/* Customer */}
@@ -85,7 +94,7 @@ export default async function BookingSuccess({
         {/* Date */}
         <div className="flex items-center justify-between py-2.5 border-b border-border-light/60">
           <span className="text-xs font-semibold text-text-muted">Date</span>
-          <span className="text-xs font-extrabold text-text-primary">{params.date}</span>
+          <span className="text-xs font-extrabold text-text-primary">{formattedDate}</span>
         </div>
 
         {/* Time */}
@@ -125,7 +134,7 @@ export default async function BookingSuccess({
           reference={params.reference}
           customer={params.customer}
           service={params.service}
-          date={params.date}
+          date={formattedDate}
           time={params.time}
           type={params.type}
         />

@@ -252,16 +252,13 @@ export default function EmergencyBookingPage() {
     }
   }
 
-  // ─── Calendar Helpers ─────────────────────────────────────────
   function formatSelectedDate(iso: string) {
     if (!iso) return "";
-    const d = new Date(iso + "T00:00:00");
-    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const monthNames = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December",
-    ];
-    return `${dayNames[d.getDay()]} - ${monthNames[d.getMonth()]} ${d.getDate()}`;
+    const parts = iso.split("-");
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return iso;
   }
 
   // ─── JSX ──────────────────────────────────────────────────────
