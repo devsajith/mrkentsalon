@@ -112,9 +112,9 @@ export default async function BookingSuccess({
           <polyline points="22 4 12 14.01 9 11.01" />
         </svg>
         <div className="space-y-0.5">
-          <p className="text-xs font-bold text-emerald-800">Receipt Saved</p>
+          <p className="text-xs font-bold text-emerald-800">Booking Confirmed</p>
           <p className="text-[10px] text-emerald-700 font-semibold leading-relaxed">
-            The booking confirmation image has been automatically saved to your gallery.
+            Please download or take a screenshot of this receipt for further reference.
           </p>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React from "react";
 
 export default function DownloadReceiptButton({
   reference,
@@ -17,9 +17,7 @@ export default function DownloadReceiptButton({
   time: string;
   type?: string;
 }) {
-  const downloadedRef = useRef(false);
-
-  const generateAndDownload = (isAuto = false) => {
+  const generateAndDownload = () => {
     try {
       const canvas = document.createElement("canvas");
       canvas.width = 600;
@@ -144,7 +142,7 @@ export default function DownloadReceiptButton({
       // Generate Data URL and trigger download
       const dataUrl = canvas.toDataURL("image/png");
 
-      if (isIOSDevice() && !isAuto) {
+      if (isIOSDevice()) {
         // iOS Safari popup window flow
         const newWindow = window.open();
         if (newWindow) {
@@ -213,16 +211,7 @@ export default function DownloadReceiptButton({
            (navigator.userAgent.includes("Mac") && "ontouchend" in document);
   };
 
-  useEffect(() => {
-    if (!downloadedRef.current) {
-      downloadedRef.current = true;
-      // Slight timeout to let the page animation play smoothly first
-      const timer = setTimeout(() => {
-        generateAndDownload(true);
-      }, 800);
-      return () => clearTimeout(timer);
-    }
-  }, []);
+
 
   return (
     <div className="w-full space-y-2 text-center">

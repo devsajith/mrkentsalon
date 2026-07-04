@@ -66,6 +66,15 @@ const TIERED_SERVICES_CONFIG: Record<string, {
   }
 };
 
+function formatTime12h(timeStr: string): string {
+  if (!timeStr) return "";
+  const [hourStr, minStr] = timeStr.split(":");
+  const hour = parseInt(hourStr, 10);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${hour12}:${minStr} ${ampm}`;
+}
+
 export default function BookingPage() {
   // Generate the 3 days (Today, Tomorrow, Day After)
   const threeDays = Array.from({ length: 3 }).map((_, i) => {
@@ -214,7 +223,7 @@ export default function BookingPage() {
 
       setMessage("Booking Confirmed");
 
-      window.location.href = `/booksuccess?reference=${result.data[0].booking_reference}&customer=${customerName}&service=${service.name}&date=${selectedDate}&time=${slot.time}-${slot.endTime}&type=${tier}`;
+      window.location.href = `/booksuccess?reference=${result.data[0].booking_reference}&customer=${customerName}&service=${service.name}&date=${selectedDate}&time=${formatTime12h(slot.time)} - ${formatTime12h(slot.endTime)}&type=${tier}`;
 
       setCustomerName("");
       setPhone("");
@@ -449,7 +458,7 @@ export default function BookingPage() {
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      {selectedSlot} - {slots.find(s => s.time === selectedSlot)?.endTime}
+                      {formatTime12h(selectedSlot)} - {formatTime12h(slots.find(s => s.time === selectedSlot)?.endTime || "")}
                     </p>
                   </div>
                   <button
@@ -469,7 +478,7 @@ export default function BookingPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[240px] overflow-y-auto pr-1">
                 {slots.map((slot) => {
                   const isSelected = selectedSlot === slot.time;
-                  const displayTime = slot.isFullyBooked && !slot.isPast ? `${slot.time} (Filled)` : slot.time;
+                  const displayTime = slot.isFullyBooked && !slot.isPast ? `${formatTime12h(slot.time)} (Filled)` : formatTime12h(slot.time);
                   return (
                     <button
                       key={slot.time}
@@ -554,7 +563,7 @@ export default function BookingPage() {
                   {selectedDate ? (
                     <>
                       {formatSelectedDate(selectedDate)}
-                      {selectedSlot && <span className="block text-accent font-black mt-0.5">@ {selectedSlot}</span>}
+                      {selectedSlot && <span className="block text-accent font-black mt-0.5">@ {formatTime12h(selectedSlot)}</span>}
                     </>
                   ) : (
                     <span className="text-text-muted font-normal italic">Not selected</span>
