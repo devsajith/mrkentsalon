@@ -216,7 +216,7 @@ export default function DownloadReceiptButton({
   return (
     <div className="w-full space-y-2 text-center">
       <button
-        onClick={() => generateAndDownload(false)}
+        onClick={generateAndDownload}
         className="flex items-center justify-center gap-2 w-full h-12 rounded-xl text-white font-bold text-sm shadow-sm hover:shadow-md transition-all active:scale-[0.98] cursor-pointer"
         style={{ background: "linear-gradient(135deg, #10B981, #059669)" }}
       >

@@ -3,6 +3,18 @@
 import { useMemo, useState } from "react";
 import { updateBookingStatus } from "@/services/booking.service";
 
+function formatTime12h(timeStr: string): string {
+  if (!timeStr) return "";
+  const parts = timeStr.split(":");
+  if (parts.length < 2) return timeStr;
+  let hour = parseInt(parts[0], 10);
+  const min = parts[1];
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12;
+  if (hour === 0) hour = 12;
+  return `${hour}:${min} ${ampm}`;
+}
+
 type Booking = {
   id: string;
   customer_name: string;
@@ -254,7 +266,7 @@ export default function BookingTable({
                         {booking.booking_date}
                       </div>
                       <div className={`text-xs font-semibold mt-0.5 ${booking.booking_type?.startsWith("emergency") ? "text-red-600" : "text-accent"}`}>
-                        {booking.slot_time} - {booking.end_time}
+                        {formatTime12h(booking.slot_time)} - {formatTime12h(booking.end_time)}
                       </div>
                     </td>
 

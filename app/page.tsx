@@ -211,8 +211,8 @@ export default function HomePage() {
               <span className="hidden md:inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-white/90 backdrop-blur-md">
                 Premium Grooming Studio
               </span>
-              <h2 className="text-white text-xl md:text-5xl font-extrabold leading-tight max-w-[200px] md:max-w-xl">
-                Get 20% Off Your Next Haircut!
+              <h2 className="text-white text-xl md:text-5xl font-extrabold leading-tight max-w-[200px] md:max-w-xl uppercase tracking-wide">
+                MRKENT BARBERS
               </h2>
               <p className="hidden md:block text-white/80 text-sm leading-6 max-w-lg text-justify">
                 Book your session with certified stylists and settle into a sharper, calmer grooming experience built around detail.
@@ -224,9 +224,6 @@ export default function HomePage() {
                 <Link href="/book/emergency" className="tap-effect inline-block bg-red-600 text-white text-xs md:text-sm font-bold px-5 md:px-6 py-2.5 md:py-3 rounded-full hover:bg-red-700 transition-colors shadow-[0_16px_36px_rgba(220,38,38,0.35)]">
                   Emergency Booking
                 </Link>
-                <a href="#highlights" className="hidden md:inline-flex text-sm font-bold text-white/90 hover:text-white transition-colors ml-2">
-                  View Signature Styles
-                </a>
               </div>
             </div>
 

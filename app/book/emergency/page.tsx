@@ -112,12 +112,25 @@ export default function EmergencyBookingPage() {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [showTierModal, setShowTierModal] = useState(false);
   const [selectedTier, setSelectedTier] = useState<string>("normal");
 
   function onClickBook() {
+    setNameError("");
+    setPhoneError("");
+    setMessage("");
+
     if (!selectedService || !selectedDate || !selectedSlot || !customerName || !phone) {
       setMessage("Please fill all details and select date/time/service");
+      return;
+    }
+
+    // Name Validation
+    const nameLength = customerName.trim().length;
+    if (nameLength < 3 || nameLength > 30) {
+      setNameError("Name must be between 3 and 30 characters");
       return;
     }
 
@@ -125,7 +138,7 @@ export default function EmergencyBookingPage() {
     const cleanedPhone = phone.trim().replace(/[\s-]/g, "");
     const indianPhoneRegex = /^(?:(?:\+|0{0,2})91[\s-]?)?[6-9]\d{9}$/;
     if (!indianPhoneRegex.test(cleanedPhone)) {
-      setMessage("Please enter a valid 10-digit Indian phone number");
+      setPhoneError("Please enter a valid 10-digit Indian phone number");
       return;
     }
 
@@ -601,30 +614,55 @@ export default function EmergencyBookingPage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-600/15 text-red-600 text-xs font-bold">4</span>
                 Your Details
               </h2>
-              <div className="space-y-3">
-                <div className="relative">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                  </svg>
-                  <input
-                    type="text"
-                    placeholder="Customer Name"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="w-full rounded-xl bg-surface py-3.5 pl-11 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none border border-transparent focus:border-red-600/30 focus:ring-4 focus:ring-red-600/10 transition-all font-medium"
-                  />
+              <div className="space-y-3.5">
+                <div>
+                  <div className="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="Customer Name"
+                      value={customerName}
+                      onChange={(e) => {
+                        setCustomerName(e.target.value);
+                        if (nameError) setNameError("");
+                      }}
+                      className={`w-full rounded-xl bg-surface py-3.5 pl-11 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none border transition-all font-medium ${
+                        nameError ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10" : "border-transparent focus:border-red-600/30 focus:ring-4 focus:ring-red-600/10"
+                      }`}
+                    />
+                  </div>
+                  {nameError && (
+                    <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 animate-slide-down">
+                      {nameError}
+                    </p>
+                  )}
                 </div>
-                <div className="relative">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                  </svg>
-                  <input
-                    type="tel"
-                    placeholder="Phone Number"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full rounded-xl bg-surface py-3.5 pl-11 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none border border-transparent focus:border-red-600/30 focus:ring-4 focus:ring-red-600/10 transition-all font-medium"
-                  />
+
+                <div>
+                  <div className="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                    </svg>
+                    <input
+                      type="tel"
+                      placeholder="Phone Number"
+                      value={phone}
+                      onChange={(e) => {
+                        setPhone(e.target.value);
+                        if (phoneError) setPhoneError("");
+                      }}
+                      className={`w-full rounded-xl bg-surface py-3.5 pl-11 pr-4 text-sm text-text-primary placeholder:text-text-muted outline-none border transition-all font-medium ${
+                        phoneError ? "border-red-500 focus:border-red-500 focus:ring-4 focus:ring-red-500/10" : "border-transparent focus:border-red-600/30 focus:ring-4 focus:ring-red-600/10"
+                      }`}
+                    />
+                  </div>
+                  {phoneError && (
+                    <p className="text-[10px] text-red-500 font-bold mt-1 ml-1 animate-slide-down">
+                      {phoneError}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -709,46 +747,76 @@ export default function EmergencyBookingPage() {
                         key={tier.key}
                         type="button"
                         onClick={() => setSelectedTier(tier.key)}
-                        className={`w-full text-left p-3 px-4 rounded-xl border-2 transition-all flex items-center justify-between group tap-effect ${
+                        className={`w-full text-left p-3.5 px-4 rounded-xl border-2 transition-all flex items-center justify-between group tap-effect ${
                           isSelected
                             ? isPremium
-                              ? "border-amber-500 bg-amber-50/10"
+                              ? "border-accent bg-accent text-white"
                               : isCreative
-                                ? "border-purple-500 bg-purple-50/10"
-                                : "border-red-600 bg-red-50/20"
-                            : "border-border-light/40 hover:border-text-muted/40 hover:bg-surface"
+                                ? "border-purple-600 bg-purple-600 text-white"
+                                : "border-red-600 bg-white text-text-primary"
+                            : isPremium
+                              ? "border-accent/30 bg-accent/5 hover:bg-accent/10"
+                              : isCreative
+                                ? "border-purple-200 bg-purple-50/30 hover:bg-purple-50/60"
+                                : "border-border-light/40 hover:border-text-muted/40 hover:bg-surface"
                         }`}
                       >
-                        <div className="space-y-0.5 pr-4">
+                        <div className="space-y-1.5 pr-4">
                           <div className="flex items-center gap-2">
-                            <span className={`text-sm font-extrabold ${
-                              isPremium ? "text-amber-950" : isCreative ? "text-purple-950" : "text-red-950"
+                            <span className={`text-sm font-bold ${
+                              isSelected && (isPremium || isCreative)
+                                ? "text-white"
+                                : isPremium
+                                  ? "text-accent"
+                                  : isCreative
+                                    ? "text-purple-700"
+                                    : "text-red-700"
                             }`}>
                               {tier.name}
                             </span>
                             {isPremium && (
-                              <span className="bg-amber-100 text-amber-800 text-[9px] font-black uppercase tracking-wider px-1.5 py-0.25 rounded-full">
+                              <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                                isSelected ? "bg-white text-accent animate-pulse" : "bg-accent/10 text-accent"
+                              }`}>
                                 Best Value
                               </span>
                             )}
                           </div>
-                          <p className="text-[11px] text-text-secondary leading-normal">{tier.description}</p>
+                          <p className={`text-[11px] leading-normal text-justify font-bold ${
+                            isPremium
+                              ? isSelected
+                                ? "text-orange-100"
+                                : "text-accent"
+                              : isCreative
+                                ? isSelected
+                                  ? "text-purple-100"
+                                  : "text-purple-700"
+                                : "text-text-secondary"
+                          }`}>
+                            {tier.description}
+                          </p>
                         </div>
                         <div className="flex flex-col items-end shrink-0 gap-1 ml-4">
-                          <span className="text-base font-black text-text-primary">
+                          <span className={`text-base font-bold ${
+                            isSelected && (isPremium || isCreative) ? "text-white" : "text-text-primary"
+                          }`}>
                             ₹{tier.price}
                           </span>
                           <div className={`h-4.5 w-4.5 rounded-full border-2 flex items-center justify-center transition-colors ${
                             isSelected
                               ? isPremium
-                                ? "border-amber-500 bg-amber-500 text-white"
+                                ? "border-white bg-white text-accent"
                                 : isCreative
-                                  ? "border-purple-500 bg-purple-500 text-white"
+                                  ? "border-white bg-white text-purple-600"
                                   : "border-red-600 bg-red-600 text-white"
-                              : "border-text-muted/30"
+                              : isPremium
+                                ? "border-accent/40"
+                                : isCreative
+                                  ? "border-purple-300"
+                                  : "border-text-muted/30"
                           }`}>
                             {isSelected && (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                               </svg>
                             )}
