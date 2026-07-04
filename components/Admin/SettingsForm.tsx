@@ -7,6 +7,16 @@ type SettingsFormProps = {
   initialData: Record<string, string>;
 };
 
+const timeOptions = Array.from({ length: 48 }).map((_, i) => {
+  const hour = Math.floor(i / 2);
+  const min = (i % 2) * 30;
+  const val = `${String(hour).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+  const ampm = hour >= 12 ? "PM" : "AM";
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+  const label = `${hour12}:${String(min).padStart(2, "0")} ${ampm}`;
+  return { val, label };
+});
+
 export default function SettingsForm({
   initialData,
 }: SettingsFormProps) {
@@ -107,21 +117,47 @@ export default function SettingsForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-bold text-text-secondary">Opening Time</label>
-              <input
-                type="time"
-                value={formData.opening_time || ""}
-                onChange={(e) => handleChange("opening_time", e.target.value)}
-                className="w-full bg-white border border-border-light/80 rounded-xl py-2.5 px-4 text-sm font-semibold text-text-primary outline-none focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all"
-              />
+              <div className="relative">
+                <select
+                  value={formData.opening_time ? formData.opening_time.substring(0, 5) : ""}
+                  onChange={(e) => handleChange("opening_time", e.target.value)}
+                  className="w-full bg-white border border-border-light/80 rounded-xl py-2.5 pl-4 pr-10 text-sm font-semibold text-text-primary outline-none focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all appearance-none cursor-pointer"
+                >
+                  <option value="">Select Opening Time</option>
+                  {timeOptions.map((opt) => (
+                    <option key={opt.val} value={opt.val}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-text-secondary">Closing Time</label>
-              <input
-                type="time"
-                value={formData.closing_time || ""}
-                onChange={(e) => handleChange("closing_time", e.target.value)}
-                className="w-full bg-white border border-border-light/80 rounded-xl py-2.5 px-4 text-sm font-semibold text-text-primary outline-none focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all"
-              />
+              <div className="relative">
+                <select
+                  value={formData.closing_time ? formData.closing_time.substring(0, 5) : ""}
+                  onChange={(e) => handleChange("closing_time", e.target.value)}
+                  className="w-full bg-white border border-border-light/80 rounded-xl py-2.5 pl-4 pr-10 text-sm font-semibold text-text-primary outline-none focus:border-accent/30 focus:ring-4 focus:ring-accent/10 transition-all appearance-none cursor-pointer"
+                >
+                  <option value="">Select Closing Time</option>
+                  {timeOptions.map((opt) => (
+                    <option key={opt.val} value={opt.val}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
         </div>
