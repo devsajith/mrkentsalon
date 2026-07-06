@@ -20,52 +20,19 @@ type Slot = {
   isFullyBooked?: boolean;
 };
 
-const TIERED_SERVICES_CONFIG: Record<string, {
-  name: string;
-  tiers: {
-    key: string;
-    name: string;
-    price: number;
-    description: string;
-  }[];
-}> = {
-  "haircut": {
-    name: "Haircut",
-    tiers: [
-      { key: "normal", name: "Normal", price: 170, description: "Standard haircut. No other complimentary services." },
-      { key: "creative", name: "Creative", price: 200, description: "Customize your haircut according to your preference + complimentary hair wash." },
-      { key: "premium", name: "Premium", price: 250, description: "Premium Haircut + Branded Shampoo & Conditioner Wash + Hair Styling setting (gel, wax, powder)." }
-    ]
-  },
-  "shaving": {
-    name: "Shaving",
-    tiers: [
-      { key: "normal", name: "Normal", price: 100, description: "Standard shaving. No other complimentary services." },
-      { key: "premium", name: "Premium", price: 150, description: "Blade/Trimmer + branded facewash with steam." }
-    ]
-  },
-  "beard setting": {
-    name: "Beard Setting",
-    tiers: [
-      { key: "normal", name: "Normal", price: 100, description: "Standard beard setting. No other complimentary services." },
-      { key: "premium", name: "Premium", price: 150, description: "Beard styling setting + Face Scrub with steam." }
-    ]
-  },
-  "haircut + beard setting": {
-    name: "Haircut + Beard Setting",
-    tiers: [
-      { key: "normal", name: "Normal", price: 250, description: "Standard Haircut + Beard Setting combo." },
-      { key: "premium", name: "Premium", price: 350, description: "Premium combo: Haircut + hair wash with branded conditioner & shampoo + hair setting (gel, powder, wax) + beard styling + facewash with steam." }
-    ]
-  },
-  "haircut + shave": {
-    name: "Haircut + Shave",
-    tiers: [
-      { key: "normal", name: "Normal", price: 250, description: "Standard Haircut + Shaving combo." },
-      { key: "premium", name: "Premium", price: 350, description: "Premium combo: Haircut + hair wash with branded conditioner & shampoo + hair setting (gel, powder, wax) + shaving + facewash with steam." }
-    ]
+function getEmergencyServiceDetails(name: string): { price: number; note?: string } {
+  const clean = name.toLowerCase().trim();
+  if (clean === "haircut") {
+    return { price: 200, note: "Hair wash is complementary" };
   }
-};
+  if (clean.includes("haircut") && (clean.includes("shave") || clean.includes("beard"))) {
+    return { price: 300, note: "Hair wash is complementary" };
+  }
+  if (clean.includes("shave") || clean.includes("beard")) {
+    return { price: 150 };
+  }
+  return { price: 200 };
+}
 
 function formatTime12h(timeStr: string): string {
   if (!timeStr) return "";
@@ -74,6 +41,33 @@ function formatTime12h(timeStr: string): string {
   const ampm = hour >= 12 ? "PM" : "AM";
   const hour12 = hour % 12 === 0 ? 12 : hour % 12;
   return `${hour12}:${minStr} ${ampm}`;
+}
+
+function sortServicesPriority(servicesList: any[]): any[] {
+  const priorityOrder = [
+    "haircut",
+    "shaving",
+    "beard setting",
+    "haircut + beard setting",
+    "haircut + shave",
+    "haircut + shaving"
+  ];
+
+  return [...servicesList].sort((a, b) => {
+    const aName = a.name ? a.name.toLowerCase().trim() : "";
+    const bName = b.name ? b.name.toLowerCase().trim() : "";
+
+    const aIndex = priorityOrder.indexOf(aName);
+    const bIndex = priorityOrder.indexOf(bName);
+
+    if (aIndex !== -1 && bIndex !== -1) {
+      return aIndex - bIndex;
+    }
+    if (aIndex !== -1) return -1;
+    if (bIndex !== -1) return 1;
+
+    return aName.localeCompare(bName);
+  });
 }
 
 export default function EmergencyBookingPage() {
@@ -114,8 +108,7 @@ export default function EmergencyBookingPage() {
   const [message, setMessage] = useState("");
   const [nameError, setNameError] = useState("");
   const [phoneError, setPhoneError] = useState("");
-  const [showTierModal, setShowTierModal] = useState(false);
-  const [selectedTier, setSelectedTier] = useState<string>("normal");
+
 
   function onClickBook() {
     setNameError("");
@@ -145,13 +138,7 @@ export default function EmergencyBookingPage() {
     const service = services.find((s) => s.id === selectedService);
     if (!service) return;
 
-    const cleanName = service.name.toLowerCase().trim();
-    if (TIERED_SERVICES_CONFIG[cleanName]) {
-      setSelectedTier(TIERED_SERVICES_CONFIG[cleanName].tiers[0].key);
-      setShowTierModal(true);
-    } else {
-      submitBooking("normal");
-    }
+    submitBooking("normal");
   }
 
   // ─── Existing Effects (PRESERVED) ────────────────────────────
@@ -161,7 +148,22 @@ export default function EmergencyBookingPage() {
         setServicesLoading(true);
         const response = await fetch("/api/service");
         const data = await response.json();
-        setServices(data);
+        
+        const ALLOWED_EMERGENCY_SERVICES = [
+          "haircut",
+          "shaving",
+          "beard setting",
+          "haircut + beard setting",
+          "haircut + shave",
+          "haircut + shaving"
+        ];
+        
+        const filtered = Array.isArray(data) ? data.filter((s: any) => {
+          const clean = s.name ? s.name.toLowerCase().trim() : "";
+          return ALLOWED_EMERGENCY_SERVICES.includes(clean);
+        }) : [];
+        
+        setServices(sortServicesPriority(filtered));
       } catch (err) {
         // error handling
       } finally {
@@ -375,38 +377,46 @@ export default function EmergencyBookingPage() {
             {selectedService && !isServiceExpanded ? (
               // Show ONLY selected service
               <div className="relative">
-                {services.filter(s => s.id === selectedService).map((service) => (
-                  <div
-                    key={service.id}
-                    className="p-4 rounded-xl border border-red-200 bg-red-50 text-text-primary flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="font-semibold text-sm">{service.name}</p>
-                      <p className="text-xs text-text-secondary mt-1 flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {service.duration} mins
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsServiceExpanded(true)}
-                      className="h-8 w-8 rounded-full hover:bg-red-100 flex items-center justify-center text-red-600 transition-colors cursor-pointer"
-                      title="Expand services"
+                {services.filter(s => s.id === selectedService).map((service) => {
+                  const details = getEmergencyServiceDetails(service.name);
+                  return (
+                    <div
+                      key={service.id}
+                      className="p-4 rounded-xl border border-red-200 bg-red-50 text-text-primary flex items-center justify-between"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
+                      <div>
+                        <p className="font-semibold text-sm">{service.name}</p>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-text-secondary">
+                          <span className="font-black text-red-600">
+                            ₹{details.price}
+                          </span>
+                          {details.note && (
+                            <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded uppercase tracking-wide">
+                              + Free Hair Wash
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsServiceExpanded(true)}
+                        className="h-8 w-8 rounded-full hover:bg-red-100 flex items-center justify-center text-red-600 transition-colors cursor-pointer"
+                        title="Expand services"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               // Show ALL services
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {services.map((service) => {
                   const isSelected = selectedService === service.id;
+                  const details = getEmergencyServiceDetails(service.name);
                   return (
                     <button
                       key={service.id}
@@ -424,14 +434,16 @@ export default function EmergencyBookingPage() {
                           : "bg-surface border-border-light/20 hover:bg-border-light/50 text-text-primary"
                       }`}
                     >
-                      <div>
+                      <div className="space-y-0.5">
                         <p className="font-semibold text-sm">{service.name}</p>
-                        <p className="text-xs text-text-secondary mt-1 flex items-center gap-1">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          {service.duration} mins
-                        </p>
+                        <div className="flex items-baseline gap-1 mt-1 text-sm font-black text-red-600">
+                          ₹{details.price}
+                          {details.note && (
+                            <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded ml-1.5 uppercase tracking-wide">
+                              + Free Hair Wash
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className={`h-5 w-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
                         isSelected ? "border-red-600 bg-red-600 text-white" : "border-text-muted/40"
@@ -576,14 +588,7 @@ export default function EmergencyBookingPage() {
                   )}
                 </span>
               </div>
-              {selectedService && (
-                <div className="flex items-start justify-between gap-4">
-                  <span className="text-xs text-text-secondary font-medium">Duration:</span>
-                  <span className="text-xs text-text-primary font-bold text-right">
-                    {services.find(s => s.id === selectedService)?.duration} mins
-                  </span>
-                </div>
-              )}
+
               <div className="flex items-start justify-between gap-4 pt-2 border-t border-border-light/60">
                 <span className="text-xs text-text-secondary font-medium">Date & Time:</span>
                 <span className="text-xs text-text-primary font-bold text-right">
@@ -603,6 +608,24 @@ export default function EmergencyBookingPage() {
                   Emergency
                 </span>
               </div>
+              {selectedService && (() => {
+                const s = services.find(x => x.id === selectedService);
+                if (!s) return null;
+                const details = getEmergencyServiceDetails(s.name);
+                return (
+                  <div className="flex items-start justify-between gap-4 pt-2 border-t border-border-light/60">
+                    <span className="text-xs text-text-secondary font-medium">Emergency Fee:</span>
+                    <span className="text-xs text-red-600 font-black text-right">
+                      ₹{details.price}
+                      {details.note && (
+                        <span className="block text-[9px] font-bold text-emerald-600 uppercase tracking-wide mt-0.5">
+                          * Includes Free Hair Wash
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Step 4: Your Details */}
@@ -713,162 +736,7 @@ export default function EmergencyBookingPage() {
         </div>
       </div>
 
-      {/* Tier Selection Modal */}
-      {showTierModal && (() => {
-        const service = services.find((s) => s.id === selectedService);
-        if (!service) return null;
-        
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-3xl max-w-xl w-full p-5 shadow-2xl border border-border-light/30">
-              <div className="text-center mb-3">
-                <h2 className="text-xl font-black text-red-600 tracking-tight">Select Emergency Service Type</h2>
-                <p className="text-sm text-text-secondary mt-0.5">
-                  Customize your emergency <span className="font-bold text-red-600">{service.name}</span> experience
-                </p>
-              </div>
-              
-              <div className="space-y-2">
-                {(() => {
-                  const cleanName = service.name.toLowerCase().trim();
-                  const config = TIERED_SERVICES_CONFIG[cleanName];
-                  if (!config) return null;
-                  
-                  return config.tiers.map((tier) => {
-                    const isSelected = selectedTier === tier.key;
-                    const isPremium = tier.key === "premium";
-                    const isCreative = tier.key === "creative";
-                    
-                    return (
-                      <button
-                        key={tier.key}
-                        type="button"
-                        onClick={() => setSelectedTier(tier.key)}
-                        className={`w-full text-left p-3.5 px-4 rounded-xl border-2 transition-all flex items-center justify-between group tap-effect ${
-                          isSelected
-                            ? isPremium
-                              ? "border-accent bg-accent text-white"
-                              : isCreative
-                                ? "border-purple-600 bg-purple-600 text-white"
-                                : "border-red-600 bg-white text-text-primary"
-                            : isPremium
-                              ? "border-accent/30 bg-accent/5 hover:bg-accent/10"
-                              : isCreative
-                                ? "border-purple-200 bg-purple-50/30 hover:bg-purple-50/60"
-                                : "border-border-light/40 hover:border-text-muted/40 hover:bg-surface"
-                        }`}
-                      >
-                        <div className="space-y-1.5 pr-4">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-sm font-bold ${
-                              isSelected && (isPremium || isCreative)
-                                ? "text-white"
-                                : isPremium
-                                  ? "text-accent"
-                                  : isCreative
-                                    ? "text-purple-700"
-                                    : "text-red-700"
-                            }`}>
-                              {tier.name}
-                            </span>
-                            {isPremium && (
-                              <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                                isSelected ? "bg-white text-accent animate-pulse" : "bg-accent/10 text-accent"
-                              }`}>
-                                Best Value
-                              </span>
-                            )}
-                          </div>
-                          <p className={`text-[11px] leading-normal text-justify font-bold ${
-                            isPremium
-                              ? isSelected
-                                ? "text-orange-100"
-                                : "text-accent"
-                              : isCreative
-                                ? isSelected
-                                  ? "text-purple-100"
-                                  : "text-purple-700"
-                                : "text-text-secondary"
-                          }`}>
-                            {tier.description}
-                          </p>
-                        </div>
-                        <div className="flex flex-col items-end shrink-0 gap-1 ml-4">
-                          <span className={`text-base font-bold ${
-                            isSelected && (isPremium || isCreative) ? "text-white" : "text-text-primary"
-                          }`}>
-                            ₹{tier.price}
-                          </span>
-                          <div className={`h-4.5 w-4.5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                            isSelected
-                              ? isPremium
-                                ? "border-white bg-white text-accent"
-                                : isCreative
-                                  ? "border-white bg-white text-purple-600"
-                                  : "border-red-600 bg-red-600 text-white"
-                              : isPremium
-                                ? "border-accent/40"
-                                : isCreative
-                                  ? "border-purple-300"
-                                  : "border-text-muted/30"
-                          }`}>
-                            {isSelected && (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  });
-                })()}
-              </div>
 
-              {/* Special Premium Offer Notice Banner */}
-              <div className={`mt-3 p-2.5 px-3.5 rounded-xl border transition-all duration-300 ${
-                selectedTier === "premium"
-                  ? "bg-amber-50/80 border-amber-200 text-amber-900 shadow-sm"
-                  : "bg-surface border-border-light text-text-secondary"
-              }`}>
-                <div className="flex gap-2.5 items-start">
-                  <span className={`text-base ${selectedTier === "premium" ? "text-amber-600" : "text-text-muted"}`}>
-                    💡
-                  </span>
-                  <div>
-                    <h4 className="text-[10px] font-black uppercase tracking-wider">Offer Notice</h4>
-                    <p className="text-[10px] mt-0.5 leading-normal">
-                      You can avail offers on other services <strong className="font-extrabold underline">only for Premium bookings</strong>. Additionally, Premium bookings unlock complimentary addon services.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Action Buttons */}
-              <div className="mt-4 flex gap-2.5 justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowTierModal(false)}
-                  className="px-4 py-2 bg-surface hover:bg-border-light text-text-secondary text-xs font-bold rounded-xl transition-colors cursor-pointer border border-border-light"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowTierModal(false);
-                    submitBooking(selectedTier);
-                  }}
-                  disabled={!selectedTier}
-                  className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
-                >
-                  Confirm & Book
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
     </div>
   );
 }

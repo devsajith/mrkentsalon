@@ -75,6 +75,33 @@ function formatTime12h(timeStr: string): string {
   return `${hour12}:${minStr} ${ampm}`;
 }
 
+function sortServicesPriority(servicesList: any[]): any[] {
+  const priorityOrder = [
+    "haircut",
+    "shaving",
+    "beard setting",
+    "haircut + beard setting",
+    "haircut + shave",
+    "haircut + shaving"
+  ];
+
+  return [...servicesList].sort((a, b) => {
+    const aName = a.name ? a.name.toLowerCase().trim() : "";
+    const bName = b.name ? b.name.toLowerCase().trim() : "";
+
+    const aIndex = priorityOrder.indexOf(aName);
+    const bIndex = priorityOrder.indexOf(bName);
+
+    if (aIndex !== -1 && bIndex !== -1) {
+      return aIndex - bIndex;
+    }
+    if (aIndex !== -1) return -1;
+    if (bIndex !== -1) return 1;
+
+    return aName.localeCompare(bName);
+  });
+}
+
 export default function BookingPage() {
   // Generate the 3 days (Today, Tomorrow, Day After)
   const threeDays = Array.from({ length: 3 }).map((_, i) => {
@@ -160,7 +187,7 @@ export default function BookingPage() {
         setServicesLoading(true);
         const response = await fetch("/api/service");
         const data = await response.json();
-        setServices(data);
+        setServices(sortServicesPriority(data));
       } catch (err) {
         // error handling
       } finally {
@@ -364,12 +391,6 @@ export default function BookingPage() {
                   >
                     <div>
                       <p className="font-semibold text-sm">{service.name}</p>
-                      <p className="text-xs text-text-secondary mt-1 flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {service.duration} mins
-                      </p>
                     </div>
                     <button
                       type="button"
@@ -408,12 +429,6 @@ export default function BookingPage() {
                     >
                       <div>
                         <p className="font-semibold text-sm">{service.name}</p>
-                        <p className="text-xs text-text-secondary mt-1 flex items-center gap-1">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                          {service.duration} mins
-                        </p>
                       </div>
                       <div className={`h-5 w-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
                         isSelected ? "border-accent bg-accent text-white" : "border-text-muted/40"
@@ -559,14 +574,7 @@ export default function BookingPage() {
                   )}
                 </span>
               </div>
-              {selectedService && (
-                <div className="flex items-start justify-between gap-4">
-                  <span className="text-xs text-text-secondary font-medium">Duration:</span>
-                  <span className="text-xs text-text-primary font-bold text-right">
-                    {services.find(s => s.id === selectedService)?.duration} mins
-                  </span>
-                </div>
-              )}
+
               <div className="flex items-start justify-between gap-4 pt-2 border-t border-border-light/60">
                 <span className="text-xs text-text-secondary font-medium">Date & Time:</span>
                 <span className="text-xs text-text-primary font-bold text-right">
