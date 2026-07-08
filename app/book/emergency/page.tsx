@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import BarberScissorsLoader from "@/components/BarberScissorsLoader";
 
 type Service = {
   id: string;
@@ -25,10 +26,10 @@ function getEmergencyServiceDetails(name: string): { price: number; note?: strin
   if (clean === "haircut") {
     return { price: 200, note: "Hair wash is complementary" };
   }
-  if (clean.includes("haircut") && (clean.includes("shave") || clean.includes("beard"))) {
+  if (clean.includes("haircut") && (clean.includes("shav") || clean.includes("beard"))) {
     return { price: 300, note: "Hair wash is complementary" };
   }
-  if (clean.includes("shave") || clean.includes("beard")) {
+  if (clean.includes("shav") || clean.includes("beard")) {
     return { price: 150 };
   }
   return { price: 200 };
@@ -267,7 +268,7 @@ export default function EmergencyBookingPage() {
   if (!mounted || servicesLoading) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
-        <div className="w-10 h-10 rounded-full border-4 border-red-600/25 border-t-red-600 animate-spin" />
+        <BarberScissorsLoader colorClass="text-red-600" label="Loading Services..." />
       </div>
     );
   }
@@ -483,9 +484,7 @@ export default function EmergencyBookingPage() {
             </div>
 
             {slotsLoading ? (
-              <div className="flex justify-center items-center py-8">
-                <div className="w-8 h-8 rounded-full border-3 border-red-600/25 border-t-red-600 animate-spin" />
-              </div>
+              <BarberScissorsLoader colorClass="text-red-600" size={48} label="Finding emergency slots..." />
             ) : selectedSlot && !isSlotExpanded ? (
               // Show ONLY selected slot
               <div className="relative">
@@ -544,8 +543,12 @@ export default function EmergencyBookingPage() {
                 })}
               </div>
             ) : selectedService && selectedDate ? (
-              <div className="text-center py-8 text-sm text-text-muted bg-surface rounded-xl border border-border-light/10">
-                No slots available for this day.
+              <div className="text-center py-8 text-sm text-text-muted bg-surface rounded-xl border border-border-light/10 font-bold">
+                {new Date(selectedDate + "T00:00:00+05:30").getDay() === 0 ? (
+                  <span className="text-red-600">Sunday Off - Closed</span>
+                ) : (
+                  "No slots available for this day."
+                )}
               </div>
             ) : (
               <div className="text-center py-8 text-sm text-text-muted bg-surface rounded-xl border border-dashed border-border-light">
@@ -697,10 +700,7 @@ export default function EmergencyBookingPage() {
               >
                 {loading ? (
                   <>
-                    <svg className="h-4 w-4 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4} />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
+                    <BarberScissorsLoader size={18} label="" colorClass="text-white" containerClass="inline-flex items-center" />
                     Booking…
                   </>
                 ) : (
@@ -723,10 +723,7 @@ export default function EmergencyBookingPage() {
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
-                <svg className="h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4} />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
+                <BarberScissorsLoader size={18} label="" colorClass="text-white" containerClass="inline-flex items-center" />
                 Booking…
               </span>
             ) : (

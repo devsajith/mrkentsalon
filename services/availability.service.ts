@@ -17,6 +17,11 @@ export async function getAvailableSlots(
   serviceId: string,
   bookingType: string = "normal"
 ) {
+  // Sunday Off Check (Day 0 is Sunday in IST)
+  const dayOfWeek = new Date(date + "T00:00:00+05:30").getDay();
+  if (dayOfWeek === 0) {
+    return [];
+  }
 
   const settings =
     await getSettings();

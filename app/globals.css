@@ -239,3 +239,42 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .delay-450 { transition-delay: 450ms; }
 .delay-500 { transition-delay: 500ms; }
 
+/* ---- Barber Scissors Loader Animations ---- */
+@keyframes scissors-left-cut {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(18deg);
+  }
+}
+@keyframes scissors-right-cut {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-18deg);
+  }
+}
+@keyframes scissors-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.05);
+  }
+}
+
+.animate-scissors-left {
+  animation: scissors-left-cut 1s ease-in-out infinite;
+  transform-origin: 32px 32px;
+}
+.animate-scissors-right {
+  animation: scissors-right-cut 1s ease-in-out infinite;
+  transform-origin: 32px 32px;
+}
+.animate-scissors-container {
+  animation: scissors-bounce 1s ease-in-out infinite;
+}
+
+
