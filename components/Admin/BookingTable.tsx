@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { updateBookingStatus } from "@/services/booking.service";
 
 function formatTime12h(timeStr: string): string {
@@ -42,6 +42,13 @@ export default function BookingTable({
 
   const [loadingId, setLoadingId] =
     useState("");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, typeFilter, itemsPerPage]);
 
   const filteredBookings =
     useMemo(() => {
@@ -110,6 +117,15 @@ export default function BookingTable({
       search,
       typeFilter,
     ]);
+
+  const totalPages = Math.ceil(filteredBookings.length / itemsPerPage) || 1;
+  const startIndex = filteredBookings.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+  const endIndex = Math.min(currentPage * itemsPerPage, filteredBookings.length);
+
+  const paginatedBookings = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredBookings.slice(start, start + itemsPerPage);
+  }, [filteredBookings, currentPage, itemsPerPage]);
 
   async function handleStatus(
     id: string,
@@ -195,14 +211,14 @@ export default function BookingTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-border-light/40">
-              {filteredBookings.length === 0 ? (
+              {paginatedBookings.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="p-8 text-center text-sm font-semibold text-text-muted">
                     No bookings found matching filters
                   </td>
                 </tr>
               ) : (
-                filteredBookings.map((booking) => (
+                paginatedBookings.map((booking) => (
                   <tr key={booking.id} className="hover:bg-surface/20 transition-colors">
                     {/* Customer */}
                     <td className="p-4">
@@ -315,6 +331,77 @@ export default function BookingTable({
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Footer Controls */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-border-light bg-surface/30">
+          <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-text-secondary">
+            <span>
+              Showing <strong className="text-text-primary">{startIndex}</strong> to <strong className="text-text-primary">{endIndex}</strong> of <strong className="text-text-primary">{filteredBookings.length}</strong> bookings
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span>Show</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                className="bg-white border border-border-light/80 rounded-lg px-2.5 py-1 text-xs font-bold text-text-primary outline-none cursor-pointer hover:border-accent/40 transition-colors"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+              <span>per page</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-wrap justify-center">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 rounded-lg border border-border-light/80 bg-white text-xs font-bold text-text-primary hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((page) => {
+                return (
+                  page === 1 ||
+                  page === totalPages ||
+                  Math.abs(page - currentPage) <= 1
+                );
+              })
+              .map((page, idx, arr) => {
+                const prev = arr[idx - 1];
+                const showEllipsis = prev && page - prev > 1;
+                return (
+                  <div key={page} className="flex items-center gap-1.5">
+                    {showEllipsis && (
+                      <span className="px-1 text-text-muted text-xs font-bold">...</span>
+                    )}
+                    <button
+                      onClick={() => setCurrentPage(page)}
+                      className={`min-w-[32px] h-8 px-2 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                        currentPage === page
+                          ? "bg-accent text-white shadow-sm shadow-accent/20"
+                          : "bg-white border border-border-light/80 text-text-primary hover:bg-surface"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  </div>
+                );
+              })}
+
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1.5 rounded-lg border border-border-light/80 bg-white text-xs font-bold text-text-primary hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>

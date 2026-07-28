@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import LogoutButton from "./LogOutButton";
 
+import NotificationPermissionBanner from "./NotificationPermissionBanner";
+
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
@@ -134,7 +136,8 @@ export default function AdminSidebar() {
           </nav>
         </div>
 
-        <div className="pt-6 border-t border-white/10">
+        <div className="pt-4 space-y-4 border-t border-white/10">
+          <NotificationPermissionBanner />
           <LogoutButton />
         </div>
       </aside>
@@ -170,7 +173,8 @@ export default function AdminSidebar() {
           </nav>
         </div>
 
-        <div className="pt-6 border-t border-white/10">
+        <div className="pt-4 space-y-4 border-t border-white/10">
+          <NotificationPermissionBanner />
           <LogoutButton />
         </div>
       </aside>
