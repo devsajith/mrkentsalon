@@ -207,17 +207,19 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/10" />
             <div className="hidden md:block absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-black/55 to-transparent" />
 
-            <div className="absolute inset-0 flex flex-col justify-center px-6 md:px-12 lg:px-14 gap-3 md:gap-5">
-              <span className="hidden md:inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-white/90 backdrop-blur-md">
-                Premium Grooming Studio
-              </span>
-              <h2 className="text-white text-xl md:text-5xl font-extrabold leading-tight max-w-[200px] md:max-w-xl uppercase tracking-wide">
-                MRKENT BARBERS
-              </h2>
-              <p className="hidden md:block text-white/80 text-sm leading-6 max-w-lg text-justify">
-                Book your session with certified stylists and settle into a sharper, calmer grooming experience built around detail.
-              </p>
-              <div className="flex items-center gap-3 flex-wrap">
+            <div className="absolute inset-0 flex flex-col justify-between px-6 md:px-12 lg:px-14 pt-5 md:pt-10 pb-4 md:pb-7">
+              <div className="flex flex-col gap-2.5 md:gap-4 my-auto max-w-[200px] md:max-w-xl">
+                <span className="hidden md:inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-white/90 backdrop-blur-md">
+                  Premium Grooming Studio
+                </span>
+                <h2 className="text-white text-xl md:text-5xl font-extrabold leading-tight uppercase tracking-wide">
+                  MRKENT BARBERS
+                </h2>
+                <p className="hidden md:block text-white/80 text-sm leading-6 text-justify">
+                  Book your session with certified stylists and settle into a sharper, calmer grooming experience built around detail.
+                </p>
+              </div>
+              <div className="flex items-center gap-3 flex-wrap z-10">
                 <Link href="/book" className="tap-effect inline-block bg-accent text-white text-xs md:text-sm font-bold px-5 md:px-6 py-2.5 md:py-3 rounded-full hover:bg-accent-light transition-colors shadow-[0_16px_36px_rgba(232,100,44,0.35)]">
                   Book Now
                 </Link>
