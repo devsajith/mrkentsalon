@@ -544,7 +544,7 @@ export default function EmergencyBookingPage() {
               </div>
             ) : selectedService && selectedDate ? (
               <div className="text-center py-8 text-sm text-text-muted bg-surface rounded-xl border border-border-light/10 font-bold">
-                {new Date(selectedDate + "T00:00:00+05:30").getDay() === 0 ? (
+                {new Date(selectedDate + "T12:00:00+05:30").getDay() === 0 ? (
                   <span className="text-red-600">Sunday Off - Closed</span>
                 ) : (
                   "No slots available for this day."
